@@ -1,0 +1,65 @@
+name: Docker Publish
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'base-httpd-*'
+      - 'kiwix-serve-*'
+
+jobs:
+  identify:
+    name: Identify which projects to build
+    runs-on: ubuntu-22.04
+    outputs:
+      base-httpd: ${{ steps.ident.outputs.base-httpd }}
+      kiwix-serve: ${{ steps.ident.outputs.kiwix-serve }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v23.1
+      - id: ident
+        shell: python
+        env:
+          FILES: ${{ steps.files.outputs.all_changed_files }}
+        run: |
+          import os
+          print("changed-files", os.getenv("FILES"))
+          projects = set()
+          # for tags like `base-httpd-2.0.1`
+          if os.getenv("GITHUB_REF_TYPE") == "tag":
+            projects.add(os.getenv("GITHUB_REF_NAME").rsplit("-", 1)[0])
+
+          for fname in os.getenv("FILES").split(","):
+            if len(fname.split("/")) > 1:
+              projects.add(fname.split("/")[0])
+
+          for project in projects:
+            print("::set-output name={project}::yes".format(project=project))
+  base-httpd:
+    name: Publish base-httpd Image
+    runs-on: ubuntu-22.04
+    needs: identify
+    if: ${{ needs.identify.outputs.base-httpd == 'yes' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish base-httpd Image
+        uses: openzim/docker-publish-action@v9
+        with:
+          image-name: offspot/base-httpd
+          on-master: dev
+          tag-pattern: /^base-httpd-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm/v7
+            linux/arm64
+          context: base-httpd
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
