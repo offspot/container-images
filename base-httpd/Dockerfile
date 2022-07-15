@@ -5,7 +5,7 @@ RUN apk --no-cache add build-base gcc make
 # building thttpd with JSON Content-Type support
 # and a hack allowing it to serve files with execution permissions
 # which is needed to server any file from /boot (fat32)
-RUN wget --progress=dot:giga https://www.acme.com/software/thttpd/thttpd-2.29.tar.gz && \
+RUN wget -nv https://www.acme.com/software/thttpd/thttpd-2.29.tar.gz && \
     tar xf thttpd-2.29.tar.gz && \
     rm -f ./thttpd-2.29.tar.gz && \
     cd thttpd-2.29 && \
