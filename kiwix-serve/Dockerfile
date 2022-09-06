@@ -33,6 +33,8 @@ RUN echo "amd64" > /etc/docker_arch && \
     if [ ! -z "$TARGETARCH" ] ; then echo "$TARGETARCH" > /etc/docker_arch ; fi \
     # decide which kiwix arch to download later (`armhf` for all arm* and x86_64 otherwise); \
     && if [ $(cut -c 1-3 /etc/docker_arch) = "arm" ] ; then echo "armhf" > /etc/kiwix_arch ; else echo "x86_64" > /etc/kiwix_arch ; fi \
+    # dev version means latest
+    && if [ "$VERSION" = "dev" ] ; then export VERSION="" ; fi \
     # fallback version if not suppplied; \
     && if [ ! -z "$VERSION" ] ; then export VERSION="-$VERSION" ; fi \
     # Install kiwix-tools
