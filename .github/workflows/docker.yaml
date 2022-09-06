@@ -42,6 +42,7 @@ jobs:
 
           for project in projects:
             print("::set-output name={project}::yes".format(project=project))
+
   base-httpd:
     name: Publish base-httpd Image
     runs-on: ubuntu-22.04
@@ -62,6 +63,33 @@ jobs:
             linux/arm/v7
             linux/arm64
           context: base-httpd
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
+
+  kiwix-serve:
+    name: Publish kiwix-serve Image
+    runs-on: ubuntu-22.04
+    needs: identify
+    if: ${{ needs.identify.outputs.kiwix-serve == 'yes' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish kiwix-serve Image
+        uses: openzim/docker-publish-action@v9
+        with:
+          image-name: offspot/kiwix-serve
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^kiwix-serve-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm/v6
+            linux/arm/v7
+            linux/arm64
+          context: kiwix-serve
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
