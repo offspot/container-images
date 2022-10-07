@@ -7,6 +7,7 @@ on:
     tags:
       - 'base-httpd-*'
       - 'kiwix-serve-*'
+      - 'edupi-*'
 
 jobs:
   identify:
@@ -15,6 +16,7 @@ jobs:
     outputs:
       base-httpd: ${{ steps.ident.outputs.base-httpd }}
       kiwix-serve: ${{ steps.ident.outputs.kiwix-serve }}
+      edupi: ${{ steps.ident.outputs.edupi }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -90,6 +92,33 @@ jobs:
             linux/arm/v7
             linux/arm64
           context: kiwix-serve
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
+
+  edupi:
+    name: Publish edupi Image
+    runs-on: ubuntu-22.04
+    needs: identify
+    if: ${{ needs.identify.outputs.edupi == 'yes' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish edupi Image
+        uses: openzim/docker-publish-action@v9
+        with:
+          image-name: offspot/edupi
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^edupi-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm/v6
+            linux/arm/v7
+            linux/arm64
+          context: edupi
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
