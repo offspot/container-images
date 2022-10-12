@@ -1,5 +1,31 @@
-FROM python:3.7.14-slim-bullseye
+# building static files on amd64 as node is not available on armv6
+# but only needed to build static JS files
+FROM --platform=linux/amd64 python:3.8.14-slim-bullseye as builder
+
+WORKDIR /src
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends nodejs npm curl git build-essential && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN npm -g install bower && \
+    # static files folder
+    mkdir -p /var/lib/edupi/static && \
+    # download and extract edupi source
+    curl -L -o v1.4.11.tar.gz https://github.com/offspot/edupi/archive/refs/tags/v1.4.11.tar.gz && tar -C . --strip-components 1 -x -f v1.4.11.tar.gz && rm -f v1.4.11.tar.gz && \
+    # static files stored in-image
+    sed -i 's/^STATIC_ROOT\s=.\+/STATIC_ROOT = "\/var\/lib\/edupi\/static"/g' /src/edupi/settings.py && \
+    # edupi dependencies
+    pip install --no-cache-dir -U pip && \
+    pip install --no-cache-dir -r ./requirements.txt && \
+    # edupi static files
+    python3 ./manage.py bower install && \
+    python3 ./manage.py collectstatic --noinput
+
+FROM python:3.8.14-slim-bullseye
 LABEL org.opencontainers.image.source https://github.com/offspot/container-images
+
 EXPOSE 80
 VOLUME /data
 
@@ -7,17 +33,20 @@ ENV ADMIN_USERNAME ""
 ENV ADMIN_PASSWORD ""
 ENV SRC_DIR "#"
 
-
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends libmagic1 ghostscript libmagickwand-dev nginx npm nodejs curl git && \
+    apt-get install -y --no-install-recommends libmagic1 ghostscript libmagickwand-dev nginx curl && \
+    # build-essential required on arm/v6 as Pillow is not pure python and has no wheel for it
+    if [ $(dpkg --print-architecture) = "armel" ] || [ $(dpkg --print-architecture) = "armhf" ] ; then \
+    apt-get install -y --no-install-recommends build-essential; \
+    fi && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 
-RUN npm -g install bower && \
-    # static files folder
-    mkdir -p /var/lib/edupi/static && \
+COPY --from=builder /var/lib/edupi/static /var/lib/edupi/static
+
+RUN mkdir -p /var/lib/edupi/static && \
     # /data structure
     mkdir -p /data/database /data/media /data/stats /data/log && chown -R www-data:www-data /data && \
     # to write thumbnails for PDF files
@@ -33,12 +62,8 @@ RUN npm -g install bower && \
     # static files stored in-image
     sed -i 's/^STATIC_ROOT\s=.\+/STATIC_ROOT = "\/var\/lib\/edupi\/static"/g' /src/edupi/settings.py && \
     # edupi dependencies
-    pip install pip install --no-cache-dir -U pip && \
-    pip install pip install --no-cache-dir -r ./requirements.txt && \
-    # edupi static files
-    python3 ./manage.py bower install && \
-    python3 ./manage.py collectstatic --noinput && \
-    python3 ./manage.py migrate
+    pip install --no-cache-dir -U pip && \
+    pip install --no-cache-dir -r ./requirements.txt
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.py /usr/local/bin/entrypoint
