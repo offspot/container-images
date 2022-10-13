@@ -8,6 +8,7 @@ on:
       - 'base-httpd-*'
       - 'kiwix-serve-*'
       - 'edupi-*'
+      - 'filebrowser-*'
 
 jobs:
   identify:
@@ -120,6 +121,33 @@ jobs:
             linux/arm/v7
             linux/arm64
           context: edupi
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
+
+  filebrowser:
+    name: Publish filebrowser Image
+    runs-on: ubuntu-22.04
+    needs: identify
+    if: ${{ needs.identify.outputs.filebrowser == 'yes' }}
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Publish filebrowser Image
+        uses: openzim/docker-publish-action@v9
+        with:
+          image-name: offspot/filebrowser
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^filebrowser-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm/v6
+            linux/arm/v7
+            linux/arm64
+          context: filebrowser
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
