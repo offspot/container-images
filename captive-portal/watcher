@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+
+""" Periodic maint tasks and internet-connectivity based ones
+
+    PERIODIC: every `INTERVAL`, clear the passlist
+        by removing inactive users from the passlist, we are preventing
+        new users on same device to be automatically registered and bypassed
+        so they will see the portal.
+        An additional system is already in place in the portal with `TIMEOUT`,
+        forcing users to re-register after some time.
+
+    INTERNET TOGGLE: watching content changes to /var/run/internet file
+        when going ONLINE, registered users must be added to the passlist
+        so their traffic can go directly to the Internet. In offline mode
+        the passlist is not used on purpose (to capture external domain traffic)
+
+        when going OFFLINE, we need to remove all those entries from the passlist. """
+
+import logging
+import os
+import pathlib
+import time
+from threading import Thread
+
+from inotify.adapters import Inotify
+from inotify.constants import IN_CLOSE_WRITE
+
+from portal.database import User
+from portal_filter import (
+    ack_client_registration,
+    system_is_online,
+    clear_passlist,
+)
+
+
+WATCHED_PATH: pathlib.Path = pathlib.Path("/var/run/internet")
+INTERVAL: int = int(os.getenv("CLEAR_PASSLIST_INTERVAL", 60)) * 60  # seconds
+ALWAYS_ONLINE: bool = bool(os.getenv("ALWAYS_ONLINE"))
+logging.basicConfig(level=logging.DEBUG if os.getenv("DEBUG") else logging.INFO)
+logger = logging.getLogger("watcher")
+
+
+def add_all_users_to_passlist():
+    logger.info("Adding all registered Users to filter")
+    for user in User.select():
+        logger.debug(f"> adding {user.ip_addr}")
+        ack_client_registration(user.ip_addr)
+
+
+def reset_passlist():
+    logger.info("Removing all entries from passlist")
+    clear_passlist(inactives_only=False)
+
+
+def maybe_clear_passlist():
+    if ALWAYS_ONLINE or system_is_online():
+        logger.info("Removing entries for inactive clients from passlist")
+        clear_passlist(inactives_only=True)
+
+
+class PeriodicPasslistClearance(Thread):
+    def run(self, *args, **kwargs):
+        elapsed: int = 0
+        while True:
+            time.sleep(1)
+            elapsed += 1
+            if elapsed >= INTERVAL:
+                logger.debug("CLEAR_PASSLIST_INTERVAL reached")
+                maybe_clear_passlist()
+                elapsed = 0
+
+
+def main():
+    periodic = PeriodicPasslistClearance()
+    periodic.start()
+
+    ino = Inotify()
+    ino.add_watch(str(WATCHED_PATH), IN_CLOSE_WRITE)
+
+    # header, type_names, path, filename
+    for _, type_names, path, _ in ino.event_gen(yield_nones=False):
+        logger.debug(f"{type_names=} {path=}")
+        if "IN_CLOSE_WRITE" not in type_names or str(WATCHED_PATH) != path:
+            continue
+
+        is_online = system_is_online()
+        logger.info(f"{path} modified: {'online' if is_online else 'offline'}")
+
+        if is_online:
+            add_all_users_to_passlist()
+        else:
+            reset_passlist()
+
+    logger.info("watcher done")
+
+
+if __name__ == "__main__":
+    main()
