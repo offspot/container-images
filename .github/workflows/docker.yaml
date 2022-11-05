@@ -9,6 +9,7 @@ on:
       - 'kiwix-serve-*'
       - 'edupi-*'
       - 'filebrowser-*'
+      - 'captive-portal-*'
 
 jobs:
   identify:
@@ -18,6 +19,8 @@ jobs:
       base-httpd: ${{ steps.ident.outputs.base-httpd }}
       kiwix-serve: ${{ steps.ident.outputs.kiwix-serve }}
       edupi: ${{ steps.ident.outputs.edupi }}
+      filebrowser: ${{ steps.ident.outputs.filebrowser }}
+      captive-portal: ${{ steps.ident.outputs.captive-portal }}
     steps:
       - uses: actions/checkout@v3.1.0
         with:
@@ -148,6 +151,33 @@ jobs:
             linux/arm/v7
             linux/arm64
           context: filebrowser
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
+
+  captive-portal:
+    name: Publish captive-portal Image
+    runs-on: ubuntu-22.04
+    needs: identify
+    if: ${{ needs.identify.outputs.captive-portal == 'yes' }}
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Publish captive-portal Image
+        uses: openzim/docker-publish-action@v9
+        with:
+          image-name: offspot/captive-portal
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^captive-portal-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm/v6
+            linux/arm/v7
+            linux/arm64
+          context: captive-portal
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}

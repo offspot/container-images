@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+
+""" remove *inactive* clients entries from CAPTIVE_PASSLIST """
+
+from portal_filter import clear_passlist
+
+clear_passlist(inactives_only=True)
+print("done")
