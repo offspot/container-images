@@ -1,0 +1,12 @@
+# this is a default Caddyfile for when generation failed
+{
+    admin :2020
+    auto_https disable_redirects
+    local_certs
+    skip_install_trust
+}
+
+:80, *:80, :443, *:443 {
+    tls internal
+    respond "reverse-proxy failed to gen Caddyfile, sorry. Try rebooting hotspot" 500
+}
