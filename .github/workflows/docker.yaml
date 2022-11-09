@@ -10,6 +10,7 @@ on:
       - 'edupi-*'
       - 'filebrowser-*'
       - 'captive-portal-*'
+      - 'reverse-proxy-*'
 
 jobs:
   identify:
@@ -21,6 +22,7 @@ jobs:
       edupi: ${{ steps.ident.outputs.edupi }}
       filebrowser: ${{ steps.ident.outputs.filebrowser }}
       captive-portal: ${{ steps.ident.outputs.captive-portal }}
+      reverse-proxy: ${{ steps.ident.outputs.reverse-proxy }}
     steps:
       - uses: actions/checkout@v3.1.0
         with:
@@ -178,6 +180,34 @@ jobs:
             linux/arm/v7
             linux/arm64
           context: captive-portal
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
+
+
+  reverse-proxy:
+    name: Publish reverse-proxy Image
+    runs-on: ubuntu-22.04
+    needs: identify
+    if: ${{ needs.identify.outputs.reverse-proxy == 'yes' }}
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Publish reverse-proxy Image
+        uses: openzim/docker-publish-action@v9
+        with:
+          image-name: offspot/reverse-proxy
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^reverse-proxy-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm/v6
+            linux/arm/v7
+            linux/arm64
+          context: reverse-proxy
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
