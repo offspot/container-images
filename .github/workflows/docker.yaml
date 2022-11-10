@@ -8,7 +8,7 @@ on:
       - 'base-httpd-*'
       - 'kiwix-serve-*'
       - 'edupi-*'
-      - 'filebrowser-*'
+      - 'file-browser-*'
       - 'captive-portal-*'
       - 'reverse-proxy-*'
 
@@ -20,7 +20,7 @@ jobs:
       base-httpd: ${{ steps.ident.outputs.base-httpd }}
       kiwix-serve: ${{ steps.ident.outputs.kiwix-serve }}
       edupi: ${{ steps.ident.outputs.edupi }}
-      filebrowser: ${{ steps.ident.outputs.filebrowser }}
+      file-browser: ${{ steps.ident.outputs.file-browser }}
       captive-portal: ${{ steps.ident.outputs.captive-portal }}
       reverse-proxy: ${{ steps.ident.outputs.reverse-proxy }}
     steps:
@@ -131,28 +131,28 @@ jobs:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
             GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
 
-  filebrowser:
-    name: Publish filebrowser Image
+  file-browser:
+    name: Publish file-browser Image
     runs-on: ubuntu-22.04
     needs: identify
-    if: ${{ needs.identify.outputs.filebrowser == 'yes' }}
+    if: ${{ needs.identify.outputs.file-browser == 'yes' }}
     steps:
       - uses: actions/checkout@v3.1.0
-      - name: Publish filebrowser Image
+      - name: Publish file-browser Image
         uses: openzim/docker-publish-action@v9
         with:
-          image-name: offspot/filebrowser
+          image-name: offspot/file-browser
           on-master: dev
           build-args:
             VERSION={tag}
-          tag-pattern: /^filebrowser-([0-9.]+)$/
+          tag-pattern: /^file-browser-([0-9.]+)$/
           restrict-to: offspot/container-images
           platforms: |
             linux/amd64
             linux/arm/v6
             linux/arm/v7
             linux/arm64
-          context: filebrowser
+          context: file-browser
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
