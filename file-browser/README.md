@@ -1,4 +1,4 @@
-# filebrowser
+# file-browser
 
 An Caddy-based image for serving static files
 
