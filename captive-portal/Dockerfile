@@ -1,5 +1,7 @@
 # alpine 3.16 has python 3.10
 FROM alpine:3.16
+LABEL org.opencontainers.image.source https://github.com/offspot/container-images
+
 WORKDIR /src
 
 RUN  \
