@@ -5,7 +5,7 @@ An Caddy-based image for serving static files
 ## Usage
 
 ```sh
-docker run -p 80:80 -v /some/folder:/data:ro offspot/filebrowser
+docker run -p 80:80 -v /some/folder:/data:ro offspot/file-browser
 ```
 
 ## Configuration
