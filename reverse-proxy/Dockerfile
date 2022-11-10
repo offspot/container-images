@@ -1,4 +1,5 @@
 FROM caddy:2.6.1-alpine
+LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
 RUN \
     # openssl required to generate cert when CAPTIVE_PORTAL is on
