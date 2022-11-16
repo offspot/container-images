@@ -1,0 +1,125 @@
+@font-face {
+  font-family: 'fira_sansbold';
+  src: url('./fira/FiraSans-Bold.eot');
+  src: url('./fira/FiraSans-Bold.eot?#iefix') format('embedded-opentype'),
+       url('./fira/FiraSans-Bold.woff') format('woff'),
+       url('./fira/FiraSans-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'fira_sansregular';
+  src: url('./fira/FiraSans-Regular.eot');
+  src: url('./fira/FiraSans-Regular.eot?#iefix') format('embedded-opentype'),
+       url('./fira/FiraSans-Regular.woff') format('woff'),
+       url('./fira/FiraSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'fira_sansregular', sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: unset;
+}
+
+header {
+  padding: 1em .5em;
+  background-color: #fefefe;
+  color: #333;
+  border-bottom: .1rem solid #eee;
+  margin-bottom: 2.5em;
+}
+
+section.cards {
+  max-width: 4000px;
+  margin: auto;
+}
+
+.align-end {
+  text-align: end;
+}
+
+.card {
+  color: #444343;
+  height: 13.7em;
+  margin: 1rem;
+  padding: 1rem;
+  background-color: #f7f7f7;
+  border: .1rem solid #ececec;
+  border-radius: .2rem;
+  transition: transform 0.25s;
+}
+
+.card:hover {
+  border-color: rgb(61, 146, 201);
+  transition: transform 0.25s;
+}
+
+.card .description {
+  text-align: justify-all;
+  font-weight: 300;
+  color: #4d4d4d;
+  line-height: 1.25;
+  height: 3.75em;
+  overflow-y: scroll;
+}
+
+.tags-line {
+  font-size: .9rem;
+  height: 1.7em;
+
+  line-height: normal;
+  vertical-align: middle;
+  user-select: none;
+  box-sizing: border-box;
+  border: none transparent;
+  text-decoration: none;
+  border-radius: 2px;
+
+  white-space: nowrap;
+  overflow-x: hidden;
+}
+
+.lang {
+  text-transform: uppercase;
+  background-color: white;
+  color: black;
+  text-align: center;
+  margin-right: .2rem;
+  font-size: 70%;
+  padding: .2rem;
+}
+
+.download a {
+  font-size: 70%;
+  padding: .2rem .8rem;
+  background-color: #0078e7;
+  color: #fff;
+}
+
+.tags {
+  text-align: end;
+  color: #909090;
+  overflow: hidden;
+}
+
+footer {
+  padding: .5em;
+  color: #fefefe;
+  background-color: #95A5A6;
+  margin-top: 3em;
+  height: auto;
+  min-height: 4.5rem;
+  text-align: center;
+}

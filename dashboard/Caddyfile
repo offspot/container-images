@@ -1,0 +1,10 @@
+{
+    auto_https off
+}
+
+:80 {
+    file_server /* {
+        root /var/www
+        index index.html fallback.html
+    }
+}
