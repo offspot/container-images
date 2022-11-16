@@ -1,5 +1,6 @@
 # building static files on amd64 as node is not available on armv6
 # but only needed to build static JS files
+# hadolint ignore=DL3029
 FROM --platform=linux/amd64 python:3.8.14-slim-bullseye as builder
 
 WORKDIR /src
