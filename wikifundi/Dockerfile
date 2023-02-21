@@ -52,9 +52,9 @@ RUN apt-get update -y && \
     cd /usr/share/fonts/truetype/freefont && \
     ln -s FreeSans.ttf FreeSans && \
     # download mathoid and restbase
-    curl --insecure -L -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-
-RUN export NVM_DIR="$HOME/.nvm" && \
+    curl --insecure -L -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
+    # install nvm to specify node version
+    export NVM_DIR="$HOME/.nvm" && \
     . "$NVM_DIR/nvm.sh" && \
     nvm install 12.22.12 && \
     curl --insecure -L --output /tmp/mathoid.zip https://github.com/wikimedia/mediawiki-services-mathoid/archive/95788093badfbed75a70780ca35658f64804d3b1.zip && \
@@ -76,8 +76,6 @@ RUN export NVM_DIR="$HOME/.nvm" && \
     chown -R www-data:www-data $MEDIAWIKI_ROOT/extensions && \
     # create wikifundi data placeholder (will be mounted)
     mkdir -p /var/www/data/images
-
-RUN 
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
@@ -103,8 +101,8 @@ EXPOSE 7231
 EXPOSE 10044
 
 ENV URL "http://localhost"
-ENV RESTBASE_URL "http://localhost:7231/localhost/"
-ENV MATHOID_URL "http://localhost:10044/"
+ENV RESTBASE_URL ""
+ENV MATHOID_URL ""
 
 ENTRYPOINT ["/usr/bin/entrypoint"]
 CMD ["nginx", "-g", "daemon off;"]
