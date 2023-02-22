@@ -10,13 +10,15 @@ ENV MEDIAWIKI_ADMIN_PASSWORD admin-password
 ENV CACHE_DIR /dev/shm/mw
 
 RUN apt-get update -y && \
+    apt-get install -y ca-certificates && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends \
         php7.4-fpm php7.4-sqlite3 php7.4-intl php7.4-mbstring php7.4-xml php7.4-curl php7.4-gd php7.4-gmp \
         # texlive texlive-fonts-recommended texlive-lang-greek texlive-latex-recommended texlive-latex-extra build-essential dvipng ocaml cjk-latex \
         imagemagick libicu-dev ffmpeg librsvg2-bin poppler-utils memcached lua5.1 python3 locales sqlite3 fonts-freefont-ttf ttf-unifont exiv2 libtiff-tools libvips-tools \
         curl unzip python3 make build-essential librsvg2-dev ghostscript \
         git unzip curl \
-        cron nginx ca-certificates && \
+        cron nginx && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
