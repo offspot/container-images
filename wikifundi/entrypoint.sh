@@ -116,5 +116,5 @@ service cron start
 echo "> Setting Admin user password"
 php maintenance/createAndPromote.php --bureaucrat --sysop --force Admin ${MEDIAWIKI_ADMIN_PASSWORD}
 
-echo "Now switching to CMD ($@)"
+echo "Now switching to CMD ($*)"
 exec "$@"
