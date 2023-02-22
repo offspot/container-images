@@ -31,7 +31,7 @@ RUN apt-get update -y && \
     # wikifundi and mediawiki root
     mkdir -p $MEDIAWIKI_ROOT && \
     # download and extract mediawiki (with extensions)
-    curl --insecure -L --output /tmp/mediawiki.tar.bz2 -L https://drive.offspot.it/creator/installed-in-master/mediawiki-1.36.1__with-extensions.tar.bz2 && \
+    curl --insecure -L --output /tmp/mediawiki.tar.bz2 -L https://drive.offspot.it/wikifundi/dependencies/mediawiki-1.36.1__with-extensions.tar.bz2 && \
     tar -C $MEDIAWIKI_ROOT -x --strip-components=1 -f /tmp/mediawiki.tar.bz2 && \
     # remove archive
     rm -f /tmp/mediawiki.tar.bz2 && \
@@ -40,7 +40,7 @@ RUN apt-get update -y && \
     # fix ownership of mediawiki folders
     chown -R www-data:www-data $MEDIAWIKI_ROOT/skins $MEDIAWIKI_ROOT/cache && \
     # download composer
-    curl --insecure -L --output $MEDIAWIKI_ROOT/composer.phar https://drive.offspot.it/creator/installed-in-master/composer-2.1.5.phar && \
+    curl --insecure -L --output $MEDIAWIKI_ROOT/composer.phar https://drive.offspot.it/wikifundi/dependencies/composer-2.1.5.phar && \
     # update composer config to prevent network header mismatch
     cd $MEDIAWIKI_ROOT && \
     php composer.phar config -g repo.packagist composer https://packagist.org && \
