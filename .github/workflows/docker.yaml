@@ -13,6 +13,7 @@ on:
       - 'reverse-proxy-*'
       - 'dashboard-*'
       - 'wikifundi-*'
+      - 'hwclock-*'
 
 jobs:
   identify:
@@ -27,6 +28,7 @@ jobs:
       reverse-proxy: ${{ steps.ident.outputs.reverse-proxy }}
       dashboard: ${{ steps.ident.outputs.dashboard }}
       wikifundi: ${{ steps.ident.outputs.wikifundi }}
+      hwclock: ${{ steps.ident.outputs.hwclock }}
     steps:
       - uses: actions/checkout@v3.1.0
         with:
@@ -249,6 +251,31 @@ jobs:
             linux/amd64
             linux/arm64
           context: wikifundi
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
+
+  hwclock:
+    name: Publish hwclock Image
+    runs-on: ubuntu-22.04
+    needs: identify
+    if: ${{ needs.identify.outputs.hwclock == 'yes' }}
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Publish hwclock Image
+        uses: openzim/docker-publish-action@v9
+        with:
+          image-name: offspot/hwclock
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^hwclock-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm64
+          context: hwclock
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
