@@ -5,13 +5,14 @@ An Alpine-based image running a small web server allowing configuration of an ha
 
 ## Usage
 
-⚠️ Capability `CAP_SYS_TIME` is required.
-
 ```yaml
-docker run -p 80:80 --cap-add CAP_SYS_TIME ghcr.io/offspot/hwclock
+docker run -p 80:80 --cap-add CAP_SYS_TIME --device /dev/rtc ghcr.io/offspot/hwclock
 ```
 
-Web service is exposed on port `80`.
+- ⚠️ Capability `CAP_SYS_TIME` is required.
+- You can use without a `--device` but you'll only be able to manually set System date.
+- If you don't know device path, you can run with `--privileged`. Also removes need for `CAP_SYS_TIME`.
+
 
 ---
 
