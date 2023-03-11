@@ -1,5 +1,6 @@
 # we need a base system with PHP7.4.3 ; https://www.mediawiki.org/wiki/Manual:Installation_requirements#PHP
 FROM debian:bullseye-slim
+LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV WIKIFUNDI_ROOT /var/www/wikifundi
