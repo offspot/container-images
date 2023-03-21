@@ -30,7 +30,7 @@ jobs:
       wikifundi: ${{ steps.ident.outputs.wikifundi }}
       hwclock: ${{ steps.ident.outputs.hwclock }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
         with:
           fetch-depth: 2
       - name: Get changed files
@@ -64,9 +64,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.base-httpd == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish base-httpd Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/base-httpd
           on-master: dev
@@ -87,9 +87,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.kiwix-serve == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish kiwix-serve Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/kiwix-serve
           on-master: dev
@@ -112,9 +112,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.edupi == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish edupi Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/edupi
           on-master: dev
@@ -137,9 +137,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.file-browser == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish file-browser Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/file-browser
           on-master: dev
@@ -162,9 +162,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.captive-portal == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish captive-portal Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/captive-portal
           on-master: dev
@@ -187,9 +187,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.reverse-proxy == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish reverse-proxy Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/reverse-proxy
           on-master: dev
@@ -212,9 +212,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.dashboard == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish dashboard Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/dashboard
           on-master: dev
@@ -237,9 +237,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.wikifundi == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish wikifundi Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/wikifundi
           on-master: dev
@@ -262,9 +262,9 @@ jobs:
     needs: identify
     if: ${{ needs.identify.outputs.hwclock == 'yes' }}
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.4.0
       - name: Publish hwclock Image
-        uses: openzim/docker-publish-action@v9
+        uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/hwclock
           on-master: dev
