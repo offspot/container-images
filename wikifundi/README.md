@@ -8,7 +8,7 @@ A configured Mediawiki that works in pair with a content package (SQLite DB, ima
 ### localhost
 
 ```sh
-docker run -p 80:80 -p 7231:7231 -p 10044:10044 -v PATH_TO_PACKAGE:/var/www/data offspot/wikifundi
+docker run -p 80:80 -p 7231:7231 -p 10044:10044 -v PATH_TO_PACKAGE:/var/www/data ghcr.io/offspot/wikifundi
 ```
 
 - MediaWiki is served via nginx on port `80`.
@@ -35,7 +35,7 @@ In a standard deployment, WikiFundi is served over a dedicated domain name. Its 
 docker run \
     -p 80:80 -p 7231:7231 -p 10044:10044 \
     -e URL="http://wikifundi-fr.offspot" \
-    -v PATH_TO_PACKAGE:/var/www/data offspot/wikifundi
+    -v PATH_TO_PACKAGE:/var/www/data ghcr.io/offspot/wikifundi
 ```
 
 - MediaWiki served from http://wikifundi-fr.offspot
@@ -51,7 +51,7 @@ docker run \
     -e RESTBASE_URL="http://restbase.wikifundi-fr.offspot/wikifundi-fr.offspot/" \
     -e MATHOID_URL="http://mathoid.wikifundi-fr.offspot/" \
     -v PATH_TO_PACKAGE:/var/www/data \
-    offspot/wikifundi
+    ghcr.io/offspot/wikifundi
 ```
 
 - MediaWiki served from http://wikifundi-fr.offspot
@@ -95,7 +95,7 @@ services:
     volumes:
     - ./Caddyfile:/etc/caddy/Caddyfile
   wikifundi_fr:
-    image: offspot/wikifundi
+    image: ghcr.io/offspot/wikifundi
     container_name: wikifundi-fr
     links:
     - reverse:restbase.wikifundi-fr.offspot
