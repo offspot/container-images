@@ -95,7 +95,7 @@ jobs:
           on-master: dev
           build-args:
             VERSION={tag}
-          tag-pattern: /^kiwix-serve-([0-9.]+)$/
+          tag-pattern: /^kiwix-serve-([0-9.\-]+)$/
           restrict-to: offspot/container-images
           platforms: |
             linux/amd64
