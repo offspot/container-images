@@ -13,13 +13,17 @@
 import os
 import sys
 import traceback
-from typing import List
 
 from jinja2 import Template
 
-services: List[str] = [
+services: list[str] = [
     srv.strip() for srv in os.getenv("SERVICES", "").split(",") if srv
 ]
+files_map: dict[str, str] = {
+    entry.split(":", 1)[0]: entry.split(":", 1)[1]
+    for entry in os.getenv("FILES_MAPPING", "").split(",")
+    if ":" in entry
+}
 debug: bool = bool(os.getenv("DEBUG", False))
 template: Template = Template(
     """
@@ -70,6 +74,26 @@ template: Template = Template(
 {% endfor %}
 {% endif %}
 
+{% if files_map %}# endpoint-based files_map
+{% for subdomain, folder in files_map.items() %}{{subdomain}}.{$FQDN}:80, {{subdomain}}.{$FQDN}:443 {
+    tls internal
+    reverse_proxy files:80
+    rewrite * /{{folder}}/{path}?{query}
+    handle_errors {
+        respond "HTTP {http.error.status_code} Error ({http.error.message})"
+    }
+}
+
+{% endfor %}
+{% endif %}
+
+# fallback for unhandled names/IP arriving here
+:80, :443 {
+    tls internal
+    respond "Not Found! Oops" 404
+}
+
+
 """
 )
 
@@ -82,6 +106,7 @@ def gen_caddyfile():
                     debug=debug,
                     services=services,
                     nb_services=len(services),
+                    files_map=files_map,
                 )
             )
     except Exception as exc:
@@ -89,7 +114,7 @@ def gen_caddyfile():
         traceback.print_exception(exc)
         return
 
-    print(f"Generated Caddyfile for: {services}")
+    print(f"Generated Caddyfile for: {services=} and {files_map}")
 
 
 if __name__ == "__main__":
