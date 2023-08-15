@@ -92,7 +92,6 @@ jobs:
         uses: openzim/docker-publish-action@v10
         with:
           image-name: offspot/kiwix-serve
-          on-master: dev
           build-args:
             VERSION={tag}
           tag-pattern: /^kiwix-serve-([0-9.\-]+)$/
