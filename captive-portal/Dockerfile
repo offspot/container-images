@@ -25,7 +25,7 @@ COPY clear-passlist reset-passlist remove-client watcher /usr/local/bin/
 COPY Caddyfile /etc/caddy/
 
 RUN \
-    url="https://github.com/offspot/captive-portal/archive/refs/tags/1.0.0.tar.gz" && \
+    url="https://github.com/offspot/captive-portal/archive/refs/tags/1.1.0.tar.gz" && \
     curl -L $url | tar -C /src/ --strip-components 1 -xz  && \
     pip3 install --no-cache-dir -r /src/portal/requirements.txt && \
     pip3 install --no-cache-dir -r /src/portal_filter/requirements.txt && \
@@ -39,7 +39,7 @@ ENV HOTSPOT_IP "192.168.2.1"
 ENV FOOTER_NOTE ""
 # minutes after which to unregister gone clients
 ENV TIMEOUT "60"
-# minutes after which to clear filter passlist when online 
+# minutes after which to clear filter passlist when online
 ENV CLEAR_PASSLIST_INTERVAL "60"
 ENV FILTER_MODULE "portal_filter"
 ENV DB_PATH /data/portal-users.db
