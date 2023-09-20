@@ -16,8 +16,18 @@ import traceback
 
 from jinja2 import Template
 
-services: list[str] = [
-    srv.strip() for srv in os.getenv("SERVICES", "").split(",") if srv
+
+def get_service_from(service_text: str) -> tuple[str, str, int]:
+    parts = service_text.strip().split(":", 2)
+    base = (parts[0], parts[0], 80)
+    name, target, port = tuple(
+        parts[idx] if len(parts) >= idx + 1 else base[idx] for idx in range(3)
+    )
+    return (name, target, int(port))
+
+
+services: list[tuple[str, str, int]] = [
+    get_service_from(srv) for srv in os.getenv("SERVICES", "").split(",") if srv.strip()
 ]
 files_map: dict[str, str] = {
     entry.split(":", 1)[0]: entry.split(":", 1)[1]
@@ -63,9 +73,10 @@ template: Template = Template(
 }
 
 {% if services %}# endpoint-based services
-{% for service in services %}{{service}}.{$FQDN}:80, {{service}}.{$FQDN}:443 {
+{% for service, target, port in services %}
+{{service}}.{$FQDN}:80, {{service}}.{$FQDN}:443 {
     tls internal
-    reverse_proxy {{service}}:80
+    reverse_proxy {{target}}:{{port}}
     handle_errors {
         respond "HTTP {http.error.status_code} Error ({http.error.message})"
     }
