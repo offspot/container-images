@@ -10,30 +10,83 @@
     - Jinja2
 """
 
+import dataclasses
 import os
+import subprocess
 import sys
 import traceback
 
 from jinja2 import Template
 
 
-def get_service_from(service_text: str) -> tuple[str, str, int]:
-    parts = service_text.strip().split(":", 2)
-    base = (parts[0], parts[0], 80)
-    name, target, port = tuple(
-        parts[idx] if len(parts) >= idx + 1 else base[idx] for idx in range(3)
+def bcrypt_password(plaintext: str) -> str:
+    """bcrypt-encoded version of the plaintext password"""
+    ps = subprocess.run(
+        args=[
+            "/usr/bin/env",
+            "caddy",
+            "hash-password",
+            "--algorithm",
+            "bcrypt",
+            "--plaintext",
+            plaintext,
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
     )
-    return (name, target, int(port))
+    return ps.stdout.strip()
 
 
-services: list[tuple[str, str, int]] = [
-    get_service_from(srv) for srv in os.getenv("SERVICES", "").split(",") if srv.strip()
-]
+@dataclasses.dataclass
+class Service:
+    name: str
+    target: str
+    port: int
+    username: str | None = None
+    password: str | None = None
+    password_e: str | None = None
+
+    @classmethod
+    def from_line(cls, text: str):
+        """Service from svc-name[:target:port] format"""
+        parts = text.strip().split(":", 2)
+        base = (parts[0], parts[0], "80")
+        name, target, port = tuple(
+            parts[idx] if len(parts) >= idx + 1 else base[idx] for idx in range(3)
+        )
+        return cls(name=name, target=target, port=int(port))
+
+    def protect_from(self, text: str):
+        """Adds password-protect definition from svcname:username:password format"""
+        name, username, password = text.split(":", 2)
+        if name != self.name:
+            raise ValueError(f"Mismatch service {name} != {self.name}")
+        if username and password:
+            self.username = username.strip()
+            self.password = password.strip()
+            self.password_e = bcrypt_password(self.password)
+
+    @property
+    def should_protect(self) -> bool:
+        return bool(self.username) and bool(self.password_e)
+
+
+services: dict[str, Service] = {
+    Service.from_line(svc).name: Service.from_line(svc)
+    for svc in os.getenv("SERVICES", "").split(",")
+}
+for svc in os.getenv("PROTECTED_SERVICES", "").split(","):
+    svc_name = svc.split(":", 1)[0]
+    if svc_name in services:
+        services[svc_name].protect_from(svc)
+
 files_map: dict[str, str] = {
     entry.split(":", 1)[0]: entry.split(":", 1)[1]
     for entry in os.getenv("FILES_MAPPING", "").split(",")
     if ":" in entry
 }
+
 debug: bool = bool(os.getenv("DEBUG", False))
 template: Template = Template(
     """
@@ -54,15 +107,16 @@ template: Template = Template(
 # home page on domain, with prefix redirects
 {$FQDN}:80, {$FQDN}:443 {
     tls internal
+
     {% if services %}
-    # redirect to services (convenience only){% for service in services %}
-    redir /{{service}}* {scheme}://{{service}}.{$FQDN} permanent
+    # redirect to services (convenience only){% for service in services.values() %}
+    redir /{{service.name}}* {scheme}://{{service.name}}.{$FQDN} permanent
     {% endfor %}{% endif %}
 
     {% if nb_services == 0 %}# no service at all (testing?)
-    respond "Hello world, you requested no service." 200
+    respond "Hello world, you requested no service outch." 200
     {% elif nb_services == 1 %}# single service, redirecting from home
-    redir / /{{services.0}} permanent
+    redir / /{{services.values().0.name}} permanent
     {% else  %}# home service has no endpoint
     reverse_proxy home:80
     {% endif %}
@@ -73,10 +127,16 @@ template: Template = Template(
 }
 
 {% if services %}# endpoint-based services
-{% for service, target, port in services %}
-{{service}}.{$FQDN}:80, {{service}}.{$FQDN}:443 {
+{% for service in services.values() %}
+{{service.name}}.{$FQDN}:80, {{service.name}}.{$FQDN}:443 {
     tls internal
-    reverse_proxy {{target}}:{{port}}
+
+    {% if service.should_protect %}
+    basicauth * {
+        {{service.username}} {{service.password_e}}
+    }
+    {% endif %}
+    reverse_proxy {{service.target}}:{{service.port}}
     handle_errors {
         respond "HTTP {http.error.status_code} Error ({http.error.message})"
     }
@@ -86,7 +146,8 @@ template: Template = Template(
 {% endif %}
 
 {% if files_map %}# endpoint-based files_map
-{% for subdomain, folder in files_map.items() %}{{subdomain}}.{$FQDN}:80, {{subdomain}}.{$FQDN}:443 {
+{% for subdomain, folder in files_map.items() %}
+{{subdomain}}.{$FQDN}:80, {{subdomain}}.{$FQDN}:443 {
     tls internal
     reverse_proxy files:80
     rewrite * /{{folder}}/{path}?{query}
@@ -121,11 +182,11 @@ def gen_caddyfile():
                 )
             )
     except Exception as exc:
-        print("[CRITICAL] unable to gen Caddyfile, using default")
+        print("[CRITICAL] unable to gen Caddyfile, using default", flush=True)
         traceback.print_exception(exc)
         return
 
-    print(f"Generated Caddyfile for: {services=} and {files_map}")
+    print(f"Generated Caddyfile for: {services=} and {files_map}", flush=True)
 
 
 if __name__ == "__main__":
@@ -133,7 +194,7 @@ if __name__ == "__main__":
 
     if debug:
         with open("/etc/caddy/Caddyfile", "r") as fh:
-            print(fh.read())
+            print(fh.read(), flush=True)
 
     if len(sys.argv) < 2:
         sys.exit(0)
