@@ -34,8 +34,7 @@ RUN \
     pip3 install --no-cache-dir -U pip && \
     pip3 install \
         --no-cache-dir \
-        --extra-index-url https://alpine-wheels.github.io/index \
-        Jinja2==3.1.2 PyYAML==6.0 humanfriendly==10.0 && \
+        Jinja2==3.1.2 PyYAML==6.0.1 humanfriendly==10.0 && \
     apk del curl
 
 ENV FQDN "generic.hotspot"
