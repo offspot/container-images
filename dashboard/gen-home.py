@@ -24,7 +24,9 @@ try:
 except ImportError:
     from yaml import Loader
 
-templates_dir = pathlib.Path(os.getenv("SRC_DIR", "/src")).joinpath("templates")
+src_dir = pathlib.Path(os.getenv("SRC_DIR", "/src"))
+dest_dir = pathlib.Path(os.getenv("DEST_DIR", "/var/www"))
+templates_dir = src_dir.joinpath("templates")
 env = Environment(
     loader=FileSystemLoader(templates_dir), autoescape=select_autoescape()
 )
@@ -71,10 +73,18 @@ class Package(dict):
         except KeyError:
             ...
 
+    @property
+    def tags(self) -> list[str]:
+        return [tag for tag in self.get("tags", []) if tag and not tag.startswith("_")]
+
+    @property
+    def private_tags(self) -> list[str]:
+        return [tag for tag in self.get("tags", []) if tag.startswith("_")]
+
     @staticmethod
     def normalize(url: str) -> str:
         if not url.strip():
-            return
+            return ""
         uri = urllib.parse.urlparse(url)
         if not uri.scheme and not url.startswith("//"):
             url = f"//{url}"
@@ -111,7 +121,7 @@ def gen_home(fpath: pathlib.Path):
     )
 
     try:
-        with open("/var/www/index.html", "w") as fh:
+        with open(dest_dir / "index.html", "w") as fh:
             fh.write(env.get_template("home.html").render(**context))
     except Exception as exc:
         print("[CRITICAL] unable to gen homepage, using fallback")
@@ -122,10 +132,10 @@ def gen_home(fpath: pathlib.Path):
 
 
 if __name__ == "__main__":
-    gen_home(pathlib.Path("/src/home.yaml"))
+    gen_home(src_dir / "home.yaml")
 
     if Conf.debug:
-        with open("/var/www/index.html", "r") as fh:
+        with open(dest_dir / "index.html", "r") as fh:
             print(fh.read())
 
     if len(sys.argv) < 2:
