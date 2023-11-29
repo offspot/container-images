@@ -1,0 +1,34 @@
+name: Publish edupi Image
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'edupi/*'
+    tags:
+      - 'edupi-*'
+
+jobs:
+  edupi:
+    name: Publish edupi Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.4.0
+      - name: Publish edupi Image
+        uses: openzim/docker-publish-action@v10
+        with:
+          image-name: offspot/edupi
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^edupi-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm64
+          context: edupi
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}

@@ -1,0 +1,33 @@
+name: Publish kiwix-serve Image
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'kiwix-serve/*'
+    tags:
+      - 'kiwix-serve-*'
+
+jobs:
+  kiwix-serve:
+    name: Publish kiwix-serve Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.4.0
+      - name: Publish kiwix-serve Image
+        uses: openzim/docker-publish-action@v10
+        with:
+          image-name: offspot/kiwix-serve
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^kiwix-serve-([0-9.\-]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm64
+          context: kiwix-serve
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}

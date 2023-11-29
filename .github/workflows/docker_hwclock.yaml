@@ -1,0 +1,34 @@
+name: Publish hwclock Image
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'hwclock/*'
+    tags:
+      - 'hwclock-*'
+
+jobs:
+  hwclock:
+    name: Publish hwclock Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.4.0
+      - name: Publish hwclock Image
+        uses: openzim/docker-publish-action@v10
+        with:
+          image-name: offspot/hwclock
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^hwclock-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm64
+          context: hwclock
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}

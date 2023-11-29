@@ -1,0 +1,32 @@
+name: Publish base-httpd Image
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'base-httpd/*'
+    tags:
+      - 'base-httpd-*'
+
+jobs:
+  base-httpd:
+    name: Publish base-httpd Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.4.0
+      - name: Publish base-httpd Image
+        uses: openzim/docker-publish-action@v10
+        with:
+          image-name: offspot/base-httpd
+          on-master: dev
+          tag-pattern: /^base-httpd-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm64
+          context: base-httpd
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}

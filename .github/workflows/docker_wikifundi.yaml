@@ -1,0 +1,34 @@
+name: Publish wikifundi Image
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'wikifundi/*'
+    tags:
+      - 'wikifundi-*'
+
+jobs:
+  wikifundi:
+    name: Publish wikifundi Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.4.0
+      - name: Publish wikifundi Image
+        uses: openzim/docker-publish-action@v10
+        with:
+          image-name: offspot/wikifundi
+          on-master: dev
+          build-args:
+            VERSION={tag}
+          tag-pattern: /^wikifundi-([0-9.]+)$/
+          restrict-to: offspot/container-images
+          platforms: |
+            linux/amd64
+            linux/arm64
+          context: wikifundi
+          registries: ghcr.io
+          credentials:
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
