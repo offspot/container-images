@@ -1,27 +1,57 @@
 #!/usr/local/bin/python3
 
+import grp
 import os
 import pathlib
+import pwd
 import shutil
 import subprocess
 import sys
 
+SKIP_CHOWN = bool(os.getenv("NO_CHOWN_DATA"))
 
 def ensure_folders():
     root = pathlib.Path("/data")
     stat = root.stat()
 
-    for folder in ("database", "media", "stats", "log"):
+    folders = ("database", "media", "stats", "log")
+
+    for folder in folders:
         path = root.joinpath(folder)
         try:
             path.mkdir(parents=True)
         except FileExistsError:
-            continue
+            pass
         else:
             try:
                 os.chown(path, stat.st_uid, stat.st_gid)
             except Exception as exc:
                 print(f"Unable to change owner of created {path}: {exc}")
+
+    if not SKIP_CHOWN:
+        username = "www-data"
+        groupname = "www-data"
+        try:
+            user = pwd.getpwnam(username)[2]
+        except KeyError:
+            print(f"Unable to get uid of user {username}")
+            return
+
+        try:
+            group = grp.getgrnam(groupname)[2]
+        except KeyError:
+            print(f"Unable to get gid of group {groupname}")
+            return
+
+        for folder in folders:
+            path = root.joinpath(folder)
+            try:
+                os.chown(path, user, group)
+            except Exception as exc:
+                print(f"Unable to change ownership of {path}: {exc}")
+                continue
+
+
 
 
 def start_nginx():

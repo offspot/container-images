@@ -24,7 +24,7 @@ RUN npm -g install bower && \
     python3 ./manage.py bower install && \
     python3 ./manage.py collectstatic --noinput
 
-FROM python:3.8.14-slim-bullseye
+FROM python:3.8-slim-bookworm
 LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
 EXPOSE 80
@@ -33,6 +33,7 @@ VOLUME /data
 ENV ADMIN_USERNAME ""
 ENV ADMIN_PASSWORD ""
 ENV SRC_DIR "#"
+ENV NO_CHOWN_DATA ""
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends libmagic1 ghostscript libmagickwand-dev nginx curl && \

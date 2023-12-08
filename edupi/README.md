@@ -26,6 +26,7 @@ No configuration is required but you'll likely want to set some of the following
 | `ADMIN_USERNAME` | Username of the *admin* user. Requires setting the password. |
 | `ADMIN_PASSWORD` | Password of the *admin* user.                                |
 | `SRC_DIR`        | In-container path of the folder to import files from.        |
+| `NO_CHOWN_DATA`  | Don't chown www-data:www-data folders in `/data` on start    |
 
 Note that registered users access the special UI at [`/custom`](http://localhost/custom). A link is only present on homepage is there is no imported data.
 
@@ -38,10 +39,16 @@ If you want to persist EduPi's data, you'll need to bind some paths to a persist
 | Path         | Usage                                                        |
 | --- | --- |
 | `/data`                      | All user-modifiable data |
-| `/data/database`              | Only EduPi's database (SQLite) |
+| `/data/database`             | Only EduPi's database (SQLite) |
 | `/data/media`                | EduPi's files are stored here. Their thumbnails inside a `thumbnails` sub-folder |
 | `/data/log`                  | nginx's access logs |
 | `/data/stats`                | EduPi's statistics based off (on-demand) reading of nginx log |
 | `/var/lib/edupi/favicon.ico` | Default EduPi favicon |
 
 **Important**: when importing existing content (via `SRC_DIR` environ), make sure to mount that source directory in the same bound volume as `/data/media` so that files are moved effisciently.
+
+### Permissions
+
+Web-servers (uwsgi and nginx) runs as user `www-data`/`www-data`. `/data/*` thus needs to be writable by these processes.
+To ensure this, the container will chown those folders on start.
+If you don't want this chown to happen (and ensure perms are correct yourself), set the `NO_CHOWN_DATA` environment variable.
