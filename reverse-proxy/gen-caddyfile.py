@@ -46,6 +46,7 @@ class Service:
     username: str | None = None
     password: str | None = None
     password_e: str | None = None
+    disable_home: bool | None = False
 
     @classmethod
     def from_line(cls, text: str):
@@ -80,6 +81,9 @@ for svc in os.getenv("PROTECTED_SERVICES", "").split(","):
     svc_name = svc.split(":", 1)[0]
     if svc_name in services:
         services[svc_name].protect_from(svc)
+for svc_name in os.getenv("NO_HOME_SERVICES", "").split(","):
+    if svc_name in services:
+        services[svc_name].disable_home = True
 
 files_map: dict[str, str] = {
     entry.split(":", 1)[0]: entry.split(":", 1)[1]
@@ -135,6 +139,9 @@ template: Template = Template(
     basicauth * {
         {{service.username}} {{service.password_e}}
     }
+    {% endif %}
+    {% if service.disable_home %}
+    redir / {scheme}://{$FQDN} permanent
     {% endif %}
     reverse_proxy {{service.target}}:{{service.port}}
     handle_errors {
