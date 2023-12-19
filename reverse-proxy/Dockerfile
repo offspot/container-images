@@ -11,6 +11,7 @@ COPY Caddyfile /etc/caddy/
 COPY gen-caddyfile.py /src/
 
 ENV FQDN "generic.hotspot"
+ENV METRICS_LOGS_DIR "/var/log/metrics"
 
 # store python bytecode in image
 RUN python3 -m compileall /src/gen-caddyfile.py && mv /src/__pycache__/*.pyc /usr/local/lib/

@@ -12,6 +12,7 @@
 
 import dataclasses
 import os
+import pathlib
 import subprocess
 import sys
 import traceback
@@ -100,6 +101,17 @@ template: Template = Template(
     local_certs
     skip_install_trust
     {% if debug %}debug{% endif %}
+
+    log metrics {
+        include http.log.access
+        output file {$METRICS_LOGS_DIR}/metrics.json {
+            roll_size 1MiB
+            roll_keep 2
+            roll_uncompressed
+            roll_keep_for 48h
+        }
+        format json
+    }
 }
 
 {% if with_contentfilter %}
@@ -111,6 +123,7 @@ template: Template = Template(
 # home page on domain, with prefix redirects
 {$FQDN}:80, {$FQDN}:443 {
     tls internal
+    log
 
     {% if services %}
     # redirect to services (convenience only){% for service in services.values() %}
@@ -134,6 +147,7 @@ template: Template = Template(
 {% for service in services.values() %}
 {{service.name}}.{$FQDN}:80, {{service.name}}.{$FQDN}:443 {
     tls internal
+    log
 
     {% if service.should_protect %}
     basicauth * {
@@ -156,6 +170,7 @@ template: Template = Template(
 {% for subdomain, folder in files_map.items() %}
 {{subdomain}}.{$FQDN}:80, {{subdomain}}.{$FQDN}:443 {
     tls internal
+    log
     reverse_proxy files:80
     rewrite * /{{folder}}/{path}?{query}
     handle_errors {
@@ -169,6 +184,7 @@ template: Template = Template(
 # fallback for unhandled names/IP arriving here
 :80, :443 {
     tls internal
+    log
     respond "Not Found! Oops" 404
 }
 
@@ -197,6 +213,10 @@ def gen_caddyfile():
 
 
 if __name__ == "__main__":
+    # create metrics logs dir on start in case it doesnt exist. (corner case as this
+    # would generally be mounted and thus created by Docker and caddy will ultimately
+    # create it upon first request)
+    pathlib.Path(os.getenv("METRICS_LOGS_DIR", "")).mkdir(parents=True, exist_ok=True)
     gen_caddyfile()
 
     if debug:
