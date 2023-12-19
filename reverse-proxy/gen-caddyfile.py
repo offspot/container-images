@@ -76,7 +76,7 @@ class Service:
 services: dict[str, Service] = {
     Service.from_line(svc).name: Service.from_line(svc)
     for svc in os.getenv("SERVICES", "").split(",")
-}
+} if os.getenv("SERVICES", "") else {}
 for svc in os.getenv("PROTECTED_SERVICES", "").split(","):
     svc_name = svc.split(":", 1)[0]
     if svc_name in services:
