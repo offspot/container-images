@@ -1,4 +1,4 @@
-FROM caddy:2.6.1-alpine
+FROM caddy:2.7.6-alpine
 LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
 RUN \
@@ -16,6 +16,6 @@ ENV METRICS_LOGS_DIR "/var/log/metrics"
 # store python bytecode in image
 RUN python3 -m compileall /src/gen-caddyfile.py && mv /src/__pycache__/*.pyc /usr/local/lib/
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/bin/python3", "/usr/local/lib/gen-caddyfile.cpython-310.pyc"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/bin/python3", "/usr/local/lib/gen-caddyfile.cpython-311.pyc"]
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
 
