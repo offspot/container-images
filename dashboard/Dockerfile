@@ -1,4 +1,4 @@
-FROM caddy:2.6.1-alpine
+FROM caddy:2.7.4-alpine
 LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
 RUN \
@@ -45,10 +45,11 @@ COPY gen-home.py /src/
 COPY templates /src/templates
 COPY assets /var/www/assets
 COPY fallback.html /var/www/fallback.html
+COPY home.yaml /src/
 
 # store python bytecode in image
 RUN python3 -m compileall /src/gen-home.py && mv /src/__pycache__/*.pyc /usr/local/lib/
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/bin/python3", "/usr/local/lib/gen-home.cpython-310.pyc"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/bin/python3", "/usr/local/lib/gen-home.cpython-311.pyc"]
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
 

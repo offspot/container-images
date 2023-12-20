@@ -107,8 +107,7 @@ class Package(dict):
 
 def gen_home(fpath: pathlib.Path):
     try:
-        with open(fpath, "r") as fh:
-            document = yaml_load(fh.read(), Loader=Loader)
+        document = yaml_load(fpath.read_text(), Loader=Loader)
     except Exception as exc:
         print("[CRITICAL] unable to read home YAML document, using fallback homepage")
         traceback.print_exception(exc)
