@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 
-""" Entrypoint-friendly static homepage generation script
+""" gen-home: generate static home page from Packages YAML
+
+    - Reads Packages YAML from `PACKAGES_PATH`
+    - Prepares an HTML output with templates defined in `SRC_DIR`/templates
+    - Writes and index.html in `DEST_DIR`
+    - Optionally (`DEBUG`) outputs index to stdout as well
 
     Dependencies:
+    - PyYAML
     - Jinja2
     - humanfriendly
 """
@@ -10,35 +16,38 @@
 import os
 import pathlib
 import re
-import sys
 import traceback
 import urllib.parse
-from typing import List, Union
 
 import humanfriendly
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from yaml import load as yaml_load
+import yaml
 
 try:
-    from yaml import CLoader as Loader
+    from yaml import CSafeLoader as SafeLoader
 except ImportError:
-    from yaml import Loader
+    # we don't NEED cython ext but it's faster so use it if avail.
+    from yaml import SafeLoader
 
-src_dir = pathlib.Path(os.getenv("SRC_DIR", "/src"))
-dest_dir = pathlib.Path(os.getenv("DEST_DIR", "/var/www"))
+
+src_dir = pathlib.Path(os.getenv("SRC_DIR", "/src")).expanduser().resolve()
+packages_path = (
+    pathlib.Path(os.getenv("PACKAGES_PATH", "home.yaml")).expanduser().resolve()
+)
+dest_dir = pathlib.Path(os.getenv("DEST_DIR", "/var/www")).expanduser().resolve()
 templates_dir = src_dir.joinpath("templates")
 env = Environment(
     loader=FileSystemLoader(templates_dir), autoescape=select_autoescape()
 )
 
 
-def format_fsize(size: Union[str, int]) -> str:
+def format_fsize(size: str | int) -> str:
     if not str(size).isdigit():
-        size = humanfriendly.parse_size(size)
+        size = humanfriendly.parse_size(str(size))
     try:
         return humanfriendly.format_size(int(size), keep_width=False, binary=True)
     except Exception:
-        return size
+        return str(size)
 
 
 env.filters["fsize"] = format_fsize
@@ -95,19 +104,21 @@ class Package(dict):
 
     @property
     def visible(self):
+        if self.get("disabled", False):
+            return False
         try:
             return all([self[key] for key in self.MANDATORY_FIELDS])
         except KeyError:
             return False
 
     @property
-    def langs(self) -> List[str]:
+    def langs(self) -> list[str]:
         return [lang[:2] for lang in self.get("languages", [])]
 
 
 def gen_home(fpath: pathlib.Path):
     try:
-        document = yaml_load(fpath.read_text(), Loader=Loader)
+        document = yaml.load(fpath.read_text(), Loader=SafeLoader)
     except Exception as exc:
         print("[CRITICAL] unable to read home YAML document, using fallback homepage")
         traceback.print_exception(exc)
@@ -131,12 +142,8 @@ def gen_home(fpath: pathlib.Path):
 
 
 if __name__ == "__main__":
-    gen_home(src_dir / "home.yaml")
+    gen_home(packages_path)
 
     if Conf.debug:
         with open(dest_dir / "index.html", "r") as fh:
             print(fh.read())
-
-    if len(sys.argv) < 2:
-        sys.exit(0)
-    os.execvp(sys.argv[1], sys.argv[1:])  # nosec

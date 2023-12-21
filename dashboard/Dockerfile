@@ -35,27 +35,45 @@ RUN \
     && /usr/local/bin/gen-home_env/bin/pip3 install --no-cache-dir -U pip \
     && /usr/local/bin/gen-home_env/bin/pip3 install \
         --no-cache-dir \
-        Jinja2==3.1.2 PyYAML==6.0.1 humanfriendly==10.0 \
+        Jinja2==3.1.2 PyYAML==6.0.1 humanfriendly==10.0 libzim==3.4.0 \
     && apk del curl
 
 ENV FQDN "generic.hotspot"
 ENV NAME "My Hotspot"
+# path in which to find code (templates)
+ENV SRC_DIR "/src"
+# path to packages YAML file
+ENV PACKAGES_PATH "/src/home.yaml"
+# path to write home HTML and assets file
+ENV DEST_DIR "/var/www"
+# folder storing ZIM files. unless DONT_UPDATE_PACKAGES, ZimPackages not in the folder
+# will be removed (disabled) from packages.yaml
+# discovered ZIM (not in YAML) will be added
+ENV ZIM_DIR "/data/zims"
+# set to skip packages.yaml update on start (reading ZIM_PATH folder)
+ENV DONT_UPDATE_PACKAGES ""
+
+# templates to write ZIM Package links to reader and ZIM downloads.
+# Available patterns (to be replaced): `{fqdn}`, `{zim_name}`, `{zim_filename}`
+ENV KIWIX_READER_LINK_TPL "//kiwix.{fqdn}/viewer#{zim_name}"
+ENV KIWIX_DOWNLOAD_LINK_TPL "//zim-download.{fqdn}/{zim_filename}"
 
 # WARN: this break apk but saves a lot of space
 # it's OK on prod but comment it during dev if you need packages
 RUN apk del apk-tools ca-certificates-bundle
 
-COPY Caddyfile /etc/caddy/
-COPY gen-home.py /src/
+COPY gen-home.py refresh-zims.py /src/
 COPY templates /src/templates
 COPY assets /var/www/assets
 COPY fallback.html /var/www/fallback.html
 COPY home.yaml /src/
 COPY lighttpd.conf /etc/lighttpd/
+COPY entrypoint.sh /usr/local/bin/
 
 # store python bytecode in image
-RUN /usr/local/bin/gen-home_env/bin/python3 -m compileall /src/gen-home.py && mv /src/__pycache__/*.pyc /usr/local/bin/gen-home_env/lib/
+RUN /usr/local/bin/gen-home_env/bin/python3 -m compileall /src/gen-home.py /src/refresh-zims.py && mv /src/__pycache__/*.pyc /usr/local/bin/gen-home_env/lib/
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/gen-home_env/bin/python3", "/usr/local/bin/gen-home_env/lib/gen-home.cpython-311.pyc"]
+HEALTHCHECK --interval=10s --timeout=2s CMD ["/bin/ls", "/tmp/.ready"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/entrypoint.sh"]
 CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
 
