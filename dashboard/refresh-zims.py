@@ -39,7 +39,7 @@ dont_update = bool(os.getenv("DONT_UPDATE_PACKAGES", ""))
 
 kiwix_reader_link_tpl = os.getenv("KIWIX_READER_LINK_TPL", "//kiwix.{fqdn}/{zim_name}")
 kiwix_download_link_tpl = os.getenv(
-    "KIWIX_DOWNLOAD_LINK_TPL", "//kiwixdl.{fqdn}/{zim_filename}"
+    "KIWIX_DOWNLOAD_LINK_TPL", "//zim-download.{fqdn}/{zim_filename}"
 )
 
 
@@ -115,22 +115,36 @@ def refresh_zims(
     conf_packages = {
         package.get("ident", ""): package for package in document["packages"]
     }
-    document["packages"] = []
 
+    # get packages from what's on the filesystem
+    fs_packages = {}
     for zim_fpath in zims_dir.glob("*.zim"):
         try:
             package = get_entry_for(zim_fpath, document["metadata"])
         except Exception as exc:
             print(f"Failed to read from {zim_fpath}, skiping ({exc})")
             continue
+        else:
+            fs_packages[package["ident"]] = package
 
-        # reuse package definition from YAML
-        if package["ident"] in conf_packages:
-            document["packages"].append(conf_packages[package["ident"]])
-            continue
+    # now let's start from scratch
+    document["packages"] = []
 
-        # use from-zim package definition from discovered ZIM
+    # first, adding files in config, in their original order, disabling missing ones
+    for ident, package in conf_packages.items():
+        if ident in fs_packages:
+            package.pop("disabled", None)
+        else:
+            package["disabled"] = True
         document["packages"].append(package)
+
+    # second, add all the fs ones, but not those already in conf
+    for ident, package in fs_packages.items():
+        # dont add twice, was already handled
+        if ident in conf_packages:
+            continue
+        document["packages"].append(package)
+
     try:
         packages_path.write_text(yaml.dump(document, Dumper=Dumper))
     except Exception as exc:
