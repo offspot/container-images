@@ -32,7 +32,7 @@ RUN \
     && /usr/local/captive-env/bin/pip install --no-cache-dir -r /src/portal_filter/requirements.txt \
     # inotify is used in our watcher
     && /usr/local/captive-env/bin/pip install --no-cache-dir inotify==0.2.10 \
-    && apk del curl ca-certificates
+    && apk del curl ca-certificates apk-tools
 
 ENV HOTSPOT_NAME "My Hotspot"
 ENV HOTSPOT_FQDN "generic.offspot"
@@ -50,5 +50,8 @@ ENV PYTHONPATH "/src"
 
 COPY lighttpd.conf /etc/lighttpd/
 COPY uwsgi.ini /src/uwsgi.ini
+
+EXPOSE 2080
+EXPOSE 2443
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/entrypoint.sh"]
 CMD ["uwsgi", "--ini", "/src/uwsgi.ini"]
