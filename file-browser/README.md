@@ -1,6 +1,6 @@
 # file-browser
 
-An Caddy-based image for serving static files
+A lighttpd-based image for serving static files
 
 ## Usage
 

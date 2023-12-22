@@ -1,7 +1,10 @@
-FROM caddy:2.6.1-alpine
+FROM alpine:3.19
 LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
-RUN mkdir -p /data
-COPY config.json /config/caddy/autosave.json
+RUN apk add --no-cache lighttpd \
+    && mkdir -p /data
 
-CMD ["caddy", "run", "--resume"]
+COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
+
+EXPOSE 80
+CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
