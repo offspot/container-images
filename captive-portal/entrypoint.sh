@@ -44,6 +44,6 @@ echo "Starting Caddy web server"
 caddy run --config /etc/caddy/Caddyfile &
 
 echo "Starting internet status watcher"
-/usr/local/bin/watcher &
+/usr/local/captive-env/bin/python3 /usr/local/bin/watcher &
 
 exec "$@"
