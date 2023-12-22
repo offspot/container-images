@@ -40,8 +40,8 @@ EOF
 	openssl req -config $CSR_PATH -new -x509 -newkey rsa:2048 -nodes -keyout $CERT_KEY_PATH -days 3650 -out $CERT_PATH -batch
 fi
 
-echo "Starting Caddy web server"
-caddy run --config /etc/caddy/Caddyfile &
+echo "Starting LigHTTPd"
+lighttpd -f /etc/lighttpd/lighttpd.conf
 
 echo "Starting internet status watcher"
 /usr/local/captive-env/bin/python3 /usr/local/bin/watcher &

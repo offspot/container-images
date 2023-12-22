@@ -9,6 +9,7 @@ RUN  \
     nftables conntrack-tools \
     curl dumb-init \
     openssl \
+    lighttpd \
     sqlite \
     py3-pip py3-nftables uwsgi uwsgi-http uwsgi-python3 \
     && python3 -m venv --system-site-packages /usr/local/captive-env \
@@ -17,15 +18,10 @@ RUN  \
     && if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; \
     elif [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; \
     elif [ "$ARCH" = "armhf" ]; then ARCH="armv6"; fi \
-    && curl -LO https://github.com/caddyserver/caddy/releases/download/v2.7.6/caddy_2.7.6_linux_$ARCH.tar.gz \
-    && tar -xf caddy_2.7.6_linux_$ARCH.tar.gz -C /usr/local/bin/ \
-    && rm -rf caddy_2.7.6_linux_$ARCH.tar.gz \
-    && chmod +x /usr/local/bin/caddy \
     && /usr/local/captive-env/bin/pip install --no-cache-dir -U pip wheel
 
 COPY entrypoint.sh /usr/local/bin/
 COPY clear-passlist reset-passlist remove-client watcher /usr/local/bin/
-COPY Caddyfile /etc/caddy/
 
 RUN \
     url="https://github.com/offspot/captive-portal/archive/refs/tags/1.1.0.tar.gz" \
@@ -52,5 +48,7 @@ ENV DB_PATH /data/portal-users.db
 ENV CAPTURED_NETWORKS "192.168.2.128/25"
 ENV PYTHONPATH "/src"
 
+COPY lighttpd.conf /etc/lighttpd/
+COPY uwsgi.ini /src/uwsgi.ini
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/entrypoint.sh"]
 CMD ["uwsgi", "--ini", "/src/uwsgi.ini"]
