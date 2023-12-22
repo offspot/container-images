@@ -9,6 +9,7 @@ RUN  \
     nftables conntrack-tools \
     curl dumb-init \
     openssl \
+    sqlite \
     py3-pip py3-nftables uwsgi uwsgi-http uwsgi-python3 \
     && python3 -m venv --system-site-packages /usr/local/captive-env \
     # install caddy (single binary)
