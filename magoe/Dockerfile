@@ -14,7 +14,6 @@ COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
 
 VOLUME /var/www/magoe
 EXPOSE 80
-STOPSIGNAL SIGWINCH
 ENV MAGOE_URL http://localhost
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/entrypoint"]

@@ -2,6 +2,5 @@
 set -e
 
 mkdir -p /var/www/html
-chown -R apache:apache /var/www/html
 
 exec "$@"
