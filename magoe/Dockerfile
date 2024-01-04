@@ -1,18 +1,16 @@
-FROM alpine:3.18
+FROM alpine:3.19
 LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
-COPY httpd-foreground entrypoint /usr/local/bin/
+COPY entrypoint /usr/local/bin/
 
 RUN apk add --no-cache \
     dumb-init \
-    php81-apache2 \
-    php81-curl php81-gd php81-pdo_sqlite php81-session php81-sqlite3 php81-mbstring \
-    && mkdir -p /var/www/magoe \
-    && printf "\n\
-ServerName magoe;\n\
-ErrorLog /dev/stderr\n\
-CustomLog /dev/stdout combined\n\
-\n" >> /etc/apache2/conf.d/default.conf
+    lighttpd \
+    php82-cgi \
+    php82-curl php82-gd php82-pdo_sqlite php82-session php82-sqlite3 php82-mbstring \
+    && mkdir -p /var/www/magoe
+
+COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
 
 VOLUME /var/www/magoe
 EXPOSE 80
@@ -20,4 +18,4 @@ STOPSIGNAL SIGWINCH
 ENV MAGOE_URL http://localhost
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/entrypoint"]
-CMD ["httpd-foreground"]
+CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
