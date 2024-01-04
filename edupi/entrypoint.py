@@ -1,13 +1,17 @@
 #!/usr/local/bin/python3
 
+import grp
 import os
 import pathlib
+import pwd
 import shutil
 import subprocess
 import sys
 from typing import Union
 
 SKIP_CHOWN = bool(os.getenv("NO_CHOWN_DATA"))
+username = "www-data"
+groupname = "www-data"
 
 
 def ensure_folders():
@@ -31,8 +35,6 @@ def ensure_folders():
             _chown(path, stat.st_uid, stat.st_gid)
 
     if not SKIP_CHOWN:
-        username = "www-data"
-        groupname = "www-data"
         for folder_name in folders:
             folder = root.joinpath(folder_name)
             _chown(folder, username, groupname)
@@ -93,8 +95,6 @@ def import_src_dir(src_dir: pathlib.Path):
 
 
 def main():
-    ensure_folders()
-
     setup_django()
 
     if not install_db():
@@ -118,7 +118,15 @@ def main():
 
 
 if __name__ == "__main__":
+    ensure_folders()
+
+    # drop to www-data privileges as to run script with web-alike perms
+    os.setegid(grp.getgrnam(groupname)[2])
+    os.seteuid(pwd.getpwnam(username)[2])
     main()
+    # restore root privileges
+    os.seteuid(0)
+    os.setegid(0)
 
     if not start_nginx():
         sys.exit(1)
