@@ -1,20 +1,25 @@
 #!/usr/local/bin/python3
 
-import grp
 import os
 import pathlib
-import pwd
 import shutil
 import subprocess
 import sys
+from typing import Union
 
 SKIP_CHOWN = bool(os.getenv("NO_CHOWN_DATA"))
+
 
 def ensure_folders():
     root = pathlib.Path("/data")
     stat = root.stat()
-
     folders = ("database", "media", "stats", "log")
+
+    def _chown(path, user: Union[str, int], group: Union[str, int]):
+        try:
+            shutil.chown(path, user, group)
+        except Exception as exc:
+            print(f"Unable to change ownership of {path}: {exc}")
 
     for folder in folders:
         path = root.joinpath(folder)
@@ -23,35 +28,16 @@ def ensure_folders():
         except FileExistsError:
             pass
         else:
-            try:
-                os.chown(path, stat.st_uid, stat.st_gid)
-            except Exception as exc:
-                print(f"Unable to change owner of created {path}: {exc}")
+            _chown(path, stat.st_uid, stat.st_gid)
 
     if not SKIP_CHOWN:
         username = "www-data"
         groupname = "www-data"
-        try:
-            user = pwd.getpwnam(username)[2]
-        except KeyError:
-            print(f"Unable to get uid of user {username}")
-            return
-
-        try:
-            group = grp.getgrnam(groupname)[2]
-        except KeyError:
-            print(f"Unable to get gid of group {groupname}")
-            return
-
-        for folder in folders:
-            path = root.joinpath(folder)
-            try:
-                os.chown(path, user, group)
-            except Exception as exc:
-                print(f"Unable to change ownership of {path}: {exc}")
-                continue
-
-
+        for folder_name in folders:
+            folder = root.joinpath(folder_name)
+            _chown(folder, username, groupname)
+            for path in folder.rglob("*"):
+                _chown(folder, username, groupname)
 
 
 def start_nginx():
