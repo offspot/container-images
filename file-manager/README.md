@@ -19,7 +19,7 @@ Configuration is done most via environment variables
 | `ACCESS_MODE`       | `listing`             | One of `listing` (no auth, read-only), `manager` (auth-required, editable) and `mixed` (`listing` on `/` and `manager` on `/admin/`) |
 | `APP_URL`           |                       | URL to the app. Not used in `mixed` mode. Allows better-looking URLs (`index.php` not visible)                                       |
 | `UI_LANG`           | `en`                  | UI Language (ISO-636-1), must be a supported one                                                                                     |
-| `UI_TIMEZONE`       | `Etc/UTC`             | Timezone to use to display file details. ⚠️ `/` must be escaped                                                                      |
+| `UI_TIMEZONE`       | `Etc/UTC`             | Timezone to use to display file details.                                                                      |
 | `ADMIN_USERNAME`    | `admin`               | Username for authentication (for `manager` and `mixed`) modes                                                                        |
 | `ADMIN_PASSWORD`    | `admin@123`           | Password for authentication (for `manager` and `mixed`) modes                                                                        |
 

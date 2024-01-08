@@ -12,7 +12,7 @@ then
 	# rewrite conf in /admin/ faking
 	if [[ "$APP_URL" != "" ]]
 	then
-		ADMIN_APP_URL="${APP_URL}/admin"
+		ADMIN_APP_URL="${APP_URL}/admin/"
 	fi
 	APP_URL="$ADMIN_APP_URL" ACCESS_MODE=manager php83 ../conf-rewrite.php
 	cd ..
