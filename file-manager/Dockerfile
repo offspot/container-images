@@ -2,16 +2,16 @@ FROM alpine:3.19
 LABEL org.opencontainers.image.source https://github.com/offspot/container-images
 
 ENV WEBDIR "/var/www/html"
-
-RUN apk add --no-cache \
-        dumb-init \
-        lighttpd \
-        curl \
-        php83-fpm php83-fileinfo php83-iconv php83-zip php83-mbstring php83-session php83-phar php83-ctype php83-posix
-
-WORKDIR /var/www/html
+WORKDIR $WEBDIR
 
 RUN set -e \
+    apk add --no-cache \
+        dumb-init \
+        lighttpd \
+        php83-fpm php83-fileinfo php83-iconv php83-zip php83-mbstring \
+        php83-session php83-phar php83-ctype php83-posix \
+        # curl is used only in docker-build
+        curl \
     && TFMREF="8e87afae5b744c3e23490000bf0d398d6d4a749c" \
     && TFMPREFIX="https://raw.githubusercontent.com/prasathmani/tinyfilemanager/$TFMREF/" \
     && mkdir -p $WEBDIR/assets/css $WEBDIR/assets/js $WEBDIR/assets/fonts \
@@ -42,21 +42,16 @@ RUN set -e \
     && cd $WEBDIR \
     && curl -L -O "$TFMPREFIX/translation.json" \
     && curl -L -O "$TFMPREFIX/tinyfilemanager.php" \
-    && mkdir -p /data
-
-RUN apk del curl
-
-# patch TFM to disable in-php downloader
-
-# replace head of file to change the external assets
-RUN lnum=$(grep -n -F "EDIT BELOW CAREFULLY OR DO NOT EDIT AT ALL" tinyfilemanager.php | cut -d ':' -f 1) \
+    && mkdir -p /data \
+    && apk del curl \
+    # replace head of file to change the external assets (which is AFTER config incl in original file)
+    && lnum=$(grep -n -F "EDIT BELOW CAREFULLY OR DO NOT EDIT AT ALL" tinyfilemanager.php | cut -d ':' -f 1) \
     && printf "<?php\n\
 \$config_file = __DIR__.'/config.php';\n\
 if (is_readable(\$config_file)) {\n\
     @include(\$config_file);\n\
 }\n" > index.php \
-    && tail -n +$lnum tinyfilemanager.php >> index.php \
-    && cat index.php
+    && tail -n +$lnum tinyfilemanager.php >> index.php
 
 COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
 COPY config.php /var/www/html
