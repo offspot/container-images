@@ -4,14 +4,14 @@ LABEL org.opencontainers.image.source https://github.com/offspot/container-image
 ENV WEBDIR "/var/www/html"
 WORKDIR $WEBDIR
 
-RUN set -e \
-    apk add --no-cache \
+RUN apk add --no-cache \
         dumb-init \
         lighttpd \
         php83-fpm php83-fileinfo php83-iconv php83-zip php83-mbstring \
         php83-session php83-phar php83-ctype php83-posix \
-        # curl is used only in docker-build
+        # curl is used only in docker-build \
         curl \
+    && set -e \
     && TFMREF="8e87afae5b744c3e23490000bf0d398d6d4a749c" \
     && TFMPREFIX="https://raw.githubusercontent.com/prasathmani/tinyfilemanager/$TFMREF/" \
     && mkdir -p $WEBDIR/assets/css $WEBDIR/assets/js $WEBDIR/assets/fonts \
