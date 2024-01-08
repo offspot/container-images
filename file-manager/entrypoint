@@ -1,0 +1,51 @@
+#!/bin/sh
+set -e
+
+echo "set credentials"
+sed -i "s/ADMIN_USERNAME/${ADMIN_USERNAME}/g" manager_auth.php
+sed -i "s/ADMIN_PASSWORD/${ADMIN_PASSWORD}/g" manager_auth.php
+
+# mixed mode cannot set APP_URL as there are two apps
+if [[ "$ACCESS_MODE" = "mixed" ]]
+then
+	unset APP_URL
+fi
+
+# static replacement for envs (so we can keep clear_env=yes)
+echo "set statics"
+sed -i "s/UI_TIMEZONE/${UI_TIMEZONE}/g" config.php
+sed -i "s/UI_LANG/${UI_LANG}/g" config.php
+sed -i "s/APP_URL/${APP_URL}/g" config.php
+
+echo "configuring for ${ACCESS_MODE}"
+if [[ "$ACCESS_MODE" = "listing" ]]
+then
+    ln -s listing_auth.php auth.php
+
+elif [[ "$ACCESS_MODE" = "manager" ]]
+then
+
+    ln -s manager_auth.php auth.php
+
+elif [[ "$ACCESS_MODE" = "mixed" ]]
+then
+    mkdir -p admin
+    cd admin
+    cp ../index.php index.php
+    cp ../config.php config.php
+    cp ../manager_auth.php auth.php
+	cd ..
+    ln -s listing_auth.php auth.php
+else
+	echo "Unsupported mode: ${ACCESS_MODE}"
+    exit 1
+fi
+
+ls -l
+cat config.php
+cat auth.php
+cat manager_auth.php
+
+php-fpm83 -D
+
+exec "$@"
