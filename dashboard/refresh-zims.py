@@ -132,7 +132,8 @@ def refresh_zims(
 
     # first, adding files in config, in their original order, disabling missing ones
     for ident, package in conf_packages.items():
-        if ident in fs_packages:
+        # make sure we keep non-ZIM packages
+        if ident in fs_packages or package.get("kind", "") != "zim":
             package.pop("disabled", None)
         else:
             package["disabled"] = True
