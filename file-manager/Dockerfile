@@ -53,10 +53,8 @@ if (is_readable(\$config_file)) {\n\
 }\n" > index.php \
     && tail -n +$lnum tinyfilemanager.php >> index.php
 
+COPY config.php listing_auth.php manager_auth.php conf-rewrite.php $WEBDIR/
 COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
-COPY config.php /var/www/html
-COPY listing_auth.php /var/www/html
-COPY manager_auth.php /var/www/html
 COPY entrypoint /usr/local/bin/
 
 # there are three modes:
@@ -71,7 +69,7 @@ ENV ADMIN_PASSWORD "admin@123"
 
 # timezone to use for date/time (assuming host has date)
 # /!\ must be escaped! (slash)
-ENV UI_TIMEZONE "Etc\/UTC"
+ENV UI_TIMEZONE "Etc/UTC"
 
 ENV UI_LANG "en"
 
