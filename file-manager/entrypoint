@@ -8,14 +8,14 @@ then
     cp ../index.php index.php
     cp ../config.php config.php
     cp ../manager_auth.php manager_auth.php
-	ln -s manager_auth.php auth.php
-	# rewrite conf in /admin/ faking
-	if [[ "$APP_URL" != "" ]]
-	then
-		ADMIN_APP_URL="${APP_URL}/admin/"
-	fi
-	APP_URL="$ADMIN_APP_URL" ACCESS_MODE=manager php83 ../conf-rewrite.php
-	cd ..
+    ln -s manager_auth.php auth.php
+    # rewrite conf in /admin/ faking
+    if [[ "$APP_URL" != "" ]]
+    then
+        ADMIN_APP_URL="${APP_URL}/admin/"
+    fi
+    APP_URL="$ADMIN_APP_URL" ACCESS_MODE=manager php83 ../conf-rewrite.php
+    cd ..
     ln -s listing_auth.php auth.php
 fi
 
@@ -32,6 +32,13 @@ then
     ln -s manager_auth.php auth.php
 fi
 
-php-fpm83 -D
+# run php-fpm as root so we can write to destination without fumbling with perms
+if [[ "$ACCESS_MODE" != "listing" ]]
+then
+    sed -i 's/user = nobody/user = root/g' /etc/php83/php-fpm.d/www.conf
+    sed -i 's/group = nobody/group = root/g' /etc/php83/php-fpm.d/www.conf
+    FPMOPTS=--allow-to-run-as-root
+fi
+php-fpm83 -D $FPMOPTS
 
 exec "$@"
