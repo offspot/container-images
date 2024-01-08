@@ -57,6 +57,14 @@ header {
   margin-bottom: 2.5em;
 }
 
+
+header img {
+  width: 33em !important;
+  height: 3em !important;
+  object-fit: scale-down;
+  object-position: center left;
+}
+
 section.cards {
   max-width: 4000px;
   margin: auto;
