@@ -133,7 +133,7 @@ template: Template = Template(
     {% if nb_services == 0 %}# no service at all (testing?)
     respond "Hello world, you requested no service outch." 200
     {% elif nb_services == 1 %}# single service, redirecting from home
-    redir / /{{services.values().0.name}} permanent
+    redir / /{{ services.values() | map(attribute='name') | list | last }} permanent
     {% else  %}# home service has no endpoint
     reverse_proxy home:80
     {% endif %}
