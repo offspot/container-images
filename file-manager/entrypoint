@@ -32,6 +32,14 @@ then
     ln -s manager_auth.php auth.php
 fi
 
+mkdir -p /data/.php
+# make sur in-progress uploads are on same (mounted) filesystem
+sed -i 's,;upload_tmp_dir =,upload_tmp_dir = /data/.php,' /etc/php83/php.ini
+# tfm uploads using 2MB chunks
+sed -i 's,upload_max_filesize = 2M,upload_max_filesize = 20M,' /etc/php83/php.ini
+sed -i 's,post_max_size = 8M,post_max_size = 20M,' /etc/php83/php.ini
+sed -i 's,max_file_uploads = 20,max_file_uploads = 100,' /etc/php83/php.ini
+
 # run php-fpm as root so we can write to destination without fumbling with perms
 if [[ "$ACCESS_MODE" != "listing" ]]
 then

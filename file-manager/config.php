@@ -97,7 +97,7 @@ $sticky_navbar = false;
 // Maximum file upload size
 // Increase the following values in php.ini to work properly
 // memory_limit, upload_max_filesize, post_max_size
-$max_upload_size_bytes = 20000000000; // size 5,000,000,000 bytes (~5GB)
+$max_upload_size_bytes = 80000000000; // size 80,000,000,000 bytes (~80GB)
 
 // chunk size used for upload
 // eg. decrease to 1MB if nginx reports problem 413 entity too large
