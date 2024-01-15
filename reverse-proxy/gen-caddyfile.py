@@ -130,13 +130,7 @@ template: Template = Template(
     redir /{{service.name}}* {scheme}://{{service.name}}.{$FQDN} permanent
     {% endfor %}{% endif %}
 
-    {% if nb_services == 0 %}# no service at all (testing?)
-    respond "Hello world, you requested no service outch." 200
-    {% elif nb_services == 1 %}# single service, redirecting from home
-    redir / /{{ services.values() | map(attribute='name') | list | last }} permanent
-    {% else  %}# home service has no endpoint
     reverse_proxy home:80
-    {% endif %}
 
     handle_errors {
         respond "HTTP {http.error.status_code} Error ({http.error.message})"
