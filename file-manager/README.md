@@ -1,4 +1,4 @@
-# file-browser
+# file-manager
 
 A [tinyfilemanager](https://github.com/prasathmani/tinyfilemanager)-based image for managing on-device files
 
