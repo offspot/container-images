@@ -4,13 +4,16 @@ LABEL org.opencontainers.image.source https://github.com/offspot/container-image
 ENV WEBDIR "/var/www/html"
 WORKDIR $WEBDIR
 
+COPY tinyfilemanager.php.patch $WEBDIR
+
 RUN apk add --no-cache \
         dumb-init \
         lighttpd \
         php83-fpm php83-fileinfo php83-iconv php83-zip php83-mbstring \
         php83-session php83-phar php83-ctype php83-posix \
-        # curl is used only in docker-build \
+        # curl and patch are used only in docker-build \
         curl \
+        patch \
     && set -e \
     && TFMREF="8e87afae5b744c3e23490000bf0d398d6d4a749c" \
     && TFMPREFIX="https://raw.githubusercontent.com/prasathmani/tinyfilemanager/$TFMREF/" \
@@ -43,7 +46,11 @@ RUN apk add --no-cache \
     && curl -L -O "$TFMPREFIX/translation.json" \
     && curl -L -O "$TFMPREFIX/tinyfilemanager.php" \
     && mkdir -p /data \
-    && apk del curl \
+    && patch tinyfilemanager.php tinyfilemanager.php.patch \
+    && rm tinyfilemanager.php.patch \
+    && apk del \
+         curl \
+         patch \
     # replace head of file to change the external assets (which is AFTER config incl in original file)
     && lnum=$(grep -n -F "EDIT BELOW CAREFULLY OR DO NOT EDIT AT ALL" tinyfilemanager.php | cut -d ':' -f 1) \
     && printf "<?php\n\

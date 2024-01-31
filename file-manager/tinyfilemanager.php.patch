@@ -1,0 +1,162 @@
+--- tinyfilemanager.old.php	2024-01-29 21:27:36.788013703 +0100
++++ tinyfilemanager.php	2024-01-31 10:19:12.944928468 +0100
+@@ -203,6 +203,10 @@
+     'en' => 'English'
+ );
+ 
++//counters for added/deleted files (for metrics)
++$files_added = 0;
++$files_deleted = 0;
++
+ if ($report_errors == true) {
+     @ini_set('error_reporting', E_ALL);
+     @ini_set('display_errors', 1);
+@@ -584,6 +588,7 @@
+ 
+          function event_callback ($message) {
+             global $callback;
++            fm_report_files();
+             echo json_encode($message);
+         }
+ 
+@@ -652,6 +657,8 @@
+         }
+ 
+         if ($success) {
++            global $files_added;
++            $files_added++;
+             event_callback(array("done" => $fileinfo));
+         } else {
+             unlink($temp_file);
+@@ -700,6 +707,8 @@
+                 if(fm_is_valid_ext($new)) {
+                     @fopen($path . '/' . $new, 'w') or die('Cannot open file:  ' . $new);
+                     fm_set_msg(sprintf(lng('File').' <b>%s</b> '.lng('Created'), fm_enc($new)));
++                    global $files_added;
++                    $files_added++;
+                 } else {
+                     fm_set_msg(lng('File extension is not allowed'), 'error');
+                 }
+@@ -1021,6 +1030,8 @@
+                         $fullPathTarget = $fullPath;
+                     }
+                     rename("{$fullPath}.part", $fullPathTarget);
++                    global $files_added;
++                    $files_added++;
+                 }
+ 
+             } else if (move_uploaded_file($tmp_name, $fullPath)) {
+@@ -1030,6 +1041,8 @@
+                         'status'    => 'success',
+                         'info' => "file upload successful"
+                     );
++                    global $files_added;
++                    $files_added = 1;
+                 } else {
+                     $response = array (
+                         'status' => 'error',
+@@ -1050,6 +1063,7 @@
+         );
+     }
+     // Return the response
++    fm_report_files();
+     echo json_encode($response);
+     exit();
+ }
+@@ -1141,6 +1155,8 @@
+ 
+         if ($res) {
+             fm_set_msg(sprintf(lng('Archive').' <b>%s</b> '.lng('Created'), fm_enc($zipname)));
++            global $files_added;
++            $files_added++;
+         } else {
+             fm_set_msg(lng('Archive not created'), 'error');
+         }
+@@ -1210,6 +1226,8 @@
+ 
+         if ($res) {
+             fm_set_msg(lng('Archive unpacked'));
++            global $files_added;
++            $files_added += fm_count_files($path);
+         } else {
+             fm_set_msg(lng('Archive not unpacked'), 'error');
+         }
+@@ -2298,12 +2316,39 @@
+         }
+         return ($ok) ? rmdir($path) : false;
+     } elseif (is_file($path)) {
++        global $files_deleted;
++        $files_deleted++;
+         return unlink($path);
+     }
+     return false;
+ }
+ 
+ /**
++ * Count the number of files in a folder and its subfolders
++ * @param string $folderPath
++ * @return int
++ */
++function fm_count_files($folderPath)
++{
++    $fileCount = 0;
++
++    // Create a recursive iterator for the folder
++    $iterator = new RecursiveIteratorIterator(
++        new RecursiveDirectoryIterator($folderPath, RecursiveDirectoryIterator::SKIP_DOTS),
++        RecursiveIteratorIterator::SELF_FIRST
++    );
++
++    // Loop through the iterator to count files
++    foreach ($iterator as $file) {
++        if ($file->isFile()) {
++            $fileCount++;
++        }
++    }
++
++    return $fileCount;
++}
++
++/**
+  * Recursive chmod
+  * @param string $path
+  * @param int $filemode
+@@ -2395,6 +2440,8 @@
+         }
+         return $ok;
+     } elseif (is_file($path)) {
++        global $files_added;
++        $files_added++;
+         return fm_copy($path, $dest, $upd);
+     }
+     return false;
+@@ -2466,12 +2513,29 @@
+ }
+ 
+ /**
++ * Report files added / deleted for metrics
++ */
++function fm_report_files()
++{
++    global $files_added;
++    global $files_deleted;
++    if ($files_added) {
++        header('X-TFM-Files-Added: ' . $files_added);
++    }
++    if ($files_deleted) {
++        header('X-TFM-Files-Deleted: ' . $files_deleted);
++    }
++    return;
++}
++
++/**
+  * HTTP Redirect
+  * @param string $url
+  * @param int $code
+  */
+ function fm_redirect($url, $code = 302)
+ {
++    fm_report_files();
+     header('Location: ' . $url, true, $code);
+     exit;
+ }
