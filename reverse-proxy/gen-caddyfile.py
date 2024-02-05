@@ -165,8 +165,10 @@ template: Template = Template(
 {{subdomain}}.{$FQDN}:80, {{subdomain}}.{$FQDN}:443 {
     tls internal
     log
-    reverse_proxy files:80
-    rewrite * /{{folder}}/{path}?{query}
+    reverse_proxy files:80 {
+        rewrite /{{folder}}/{path}?{query}
+        header_up Host {upstream_hostport}
+    }
     handle_errors {
         respond "HTTP {http.error.status_code} Error ({http.error.message})"
     }
