@@ -137,6 +137,12 @@ template: Template = Template(
     }
 }
 
+# welcome fqdn redirects to homepage
+{$WELCOME_FQDN}:80, {$WELCOME_FQDN}:443 {
+    tls internal
+    redir {scheme}://{$FQDN}{uri} permanent
+}
+
 {% if services %}# endpoint-based services
 {% for service in services.values() %}
 {{service.name}}.{$FQDN}:80, {{service.name}}.{$FQDN}:443 {
