@@ -12,7 +12,7 @@ Offspot image to trigger a *captive-portal-like* web UI on WiFi connection to in
 
 ## Configuration
 
-Configuration is done most via environment variables
+Configuration is done mostly via environment variables
 
 | Variable            | Default               | Usage                                                             |
 | ------------------- | --------------------- | ----------------------------------------------------------------- |
@@ -28,8 +28,8 @@ Configuration is done most via environment variables
 | `DONT_SETUP_FILTER` |                       | Set any value to skip *filter module* setup on start              |
 | `ALWAYS_ONLINE`     |                       | Assumes system should be connected to Internet and route traffic  |
 
-Should `ALWAYS_ONLINE` not be set, a volume **is required** at `/var/run/internet`.
-This should be a text file with either `online` or `offline` content, informing about connectivity status.
+A volume **is required** at `/var/run/internet`.
+This should be a text file with either `online` or `offline` content, informing about connectivity status. This files is checked for updates periodically.
 
 It is used to decide whether to forward foreign traffic to the portal or not.
 
@@ -39,18 +39,18 @@ It is used to decide whether to forward foreign traffic to the portal or not.
 - for a container to talk to the firewall, it requires the `NET_ADMIN` capability.
 - `NET_ADMIN` allows accessing the firewall but container's network stack (and firewall) is still isolated.
 - container must be ran in `host` `network_mode` for access the host's firewall kernel space.
-- `host` mode is not compatible with other networks. In `hsot` mode, container is solely in this network (the one of the host).
+- `host` mode is not compatible with other networks. In `host` mode, container is solely in this network (the one of the host).
 - container in `host` mode cannot be reached by other containers using in-docker communication such as aliases.
 - it is thus not possible for a reverse-proxy on port `:80` to reverse proxy the portal as it cannot communicate with it.
 - `host` mode is not compatible with `ports` definition as those are implemented as NAT forwards between host and containers.
 - All exposed ports of an `host` mode container are directly exposed on the host. An `host` container binding to a port already mapped by another container will conflict. Which ever bound to it first will use it.
 - Only in `host` mode will the client requests hold their actual IP addresses. Otherwise, it will be the docker interface IP beacause of the NAT/masquerade (unless you use an host-level reverse proxy setting `X-Forwarded-For`).
 - `host` mode is only available on Linux host. Not on macOS nor Windows.
-- a custom self-signed certificate is created in entrypoint because Caddy doesnt auto-generate certificates for endpoints without a host (our `:2443` one)
+- a custom self-signed certificate is created in entrypoint because it is accessed without a valid host (`:2443`)
 - HTTPs request to the portal using an IP (ie. without a `Host` header: `https://192.168.2.1`) fails for some reason. It's not a warning issue.
 - DNS server must be working and configured on clients (via DHCP) for clients to query the server, otherwise request fail without ever hitting the server.
 
-Offline and Online work differently. A connection-status file is used to toggle between modes. Should the hotspot be connected to the Internet, `ALWAYS_ONLINE` environ saves the connectivity checks.
+Offline and Online work differently. A connection-status file is used to toggle between modes.
 
 ## when online
 
@@ -62,7 +62,7 @@ Offline and Online work differently. A connection-status file is used to toggle 
 
 - DNS server cannot simply reference upstream servers as those are unreachable and would thus result in network error at client level.
 - DNS must spoof response to return any non-local IP.
-- It's important spoofed-IP is different than hotspot IP (any public one is fine) so client's HTTP requests go through the router stack and get intercepted
+- It's important spoofed-IP is different than hotspot IP (pass it in `CAPTURED_ADDRESS`) so client's HTTP requests go through the router stack and get intercepted
 
 ### Sample compose config
 
@@ -79,17 +79,10 @@ services:
       HOTSPOT_IP: "192.168.2.1"
       HOTSPOT_FQDN: demo.offspot
       CAPTURED_NETWORKS: "192.168.2.128/25"
+      CAPTURED_ADDRESS: "198.51.100.1"
     volumes:
     - "/var/run/internet:/var/run/internet:ro"
     expose:
       - "2080"
       - "2443"
 ```
-
-
-- clean-up job
-- test internet connection and toggle spoof
-
-
-- base-image timer every 2mn writing to `/tmp/internet_status`
-- base-image timer 
