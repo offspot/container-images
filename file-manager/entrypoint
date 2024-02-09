@@ -8,7 +8,7 @@ then
     cp ../index.php index.php
     cp ../config.php config.php
     cp ../manager_auth.php manager_auth.php
-    ln -s manager_auth.php auth.php
+    ln -sf manager_auth.php auth.php
     # rewrite conf in /admin/ faking
     if [[ "$APP_URL" != "" ]]
     then
@@ -16,7 +16,7 @@ then
     fi
     APP_URL="$ADMIN_APP_URL" ACCESS_MODE=manager php83 ../conf-rewrite.php
     cd ..
-    ln -s listing_auth.php auth.php
+    ln -sf listing_auth.php auth.php
 fi
 
 # rewrite config for single-app mode
@@ -25,11 +25,11 @@ php83 ./conf-rewrite.php
 echo "configuring for ${ACCESS_MODE}"
 if [[ "$ACCESS_MODE" = "listing" ]]
 then
-    ln -s listing_auth.php auth.php
+    ln -sf listing_auth.php auth.php
 
 elif [[ "$ACCESS_MODE" = "manager" ]]
 then
-    ln -s manager_auth.php auth.php
+    ln -sf manager_auth.php auth.php
 fi
 
 mkdir -p /data/.php
