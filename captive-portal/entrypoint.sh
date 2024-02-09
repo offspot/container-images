@@ -44,6 +44,6 @@ echo "Starting LigHTTPd"
 lighttpd -f /etc/lighttpd/lighttpd.conf
 
 echo "Starting internet status watcher"
-/usr/local/captive-env/bin/python3 /usr/local/bin/watcher &
+/usr/local/bin/watcher &
 
 exec "$@"
