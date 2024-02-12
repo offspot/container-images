@@ -34,16 +34,16 @@
                 </div>
               </a>
                 <div class="pure-g description">
-                  <p class="pure-u-1">{{ package.description|default("-") }}</p>
+                  <p class="pure-u-1">{{ package.description|default("-")|truncate(80) }}</p>
                 </div>
                 <div class="pure-g metadata">
                   <div class="pure-u-1-5">
                     <div class="langs">
-                      {% if package.langs %}{% for lang in package.langs %}<span class="lang">{{ lang }}</span>{% endfor %}{% endif %}
+                      {% if package.langs %}{% for lang in package.langs %}{% if loop.index0 <= 2 %}<span class="lang">{{ lang }}</span>{% endif %}{% endfor %}{% endif %}
                     </div>
                   </div>
                   <div class="pure-u-4-5 tags">
-                    {% if package.tags %}{% for tag in package.tags %}<span class="tag">{{ tag }}</span>{% endfor %}{% endif %}
+                    {% if package.tags %}{% for tag in package.tags %}{% if loop.index0 <= 2 %}<span class="tag">{{ tag }}</span>{% endif %}{% endfor %}{% endif %}
                   </div>
                 </div>
                 <div class="download">
