@@ -18,8 +18,10 @@ import pathlib
 import re
 import traceback
 import urllib.parse
+from collections.abc import Iterable
 
 import humanfriendly
+import iso639
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import yaml
 
@@ -42,10 +44,27 @@ env = Environment(
 
 
 def format_fsize(size: str | int) -> str:
+    one_gib = 2**30
+    one_mib = 2**20
+    hundred_mib = one_gib / 10
+
+    def round_to(size: int, scale: int) -> int:
+        return (size // scale) * scale
+
     if not str(size).isdigit():
         size = humanfriendly.parse_size(str(size))
+    size = int(size)
+
+    if size > one_gib and size >= 100 * one_gib:
+        size = round_to(size, one_gib)
+    elif size > one_gib:
+        size = size = round_to(size, hundred_mib)
+    else:
+        size = round_to(size, one_mib)
     try:
-        return humanfriendly.format_size(int(size), keep_width=False, binary=True)
+        return humanfriendly.format_size(
+            int(size), keep_width=False, binary=True
+        ).replace("iB", "B")
     except Exception:
         return str(size)
 
@@ -126,9 +145,19 @@ def gen_home(fpath: pathlib.Path):
 
     Conf.from_doc(document.get("metadata", {}))
     context = Conf.to_dict()
-    context["packages"] = filter(
-        lambda p: p.visible, [Package(**item) for item in document["packages"]]
+    context["packages"] = list(
+        filter(lambda p: p.visible, [Package(**item) for item in document["packages"]])
     )
+    context["languages"] = {}
+    context["categories"] = set()
+    for package in context["packages"]:
+        for lang in package.get("languages", []):
+            context["languages"][lang] = iso639.Lang(lang).name
+        for tag in package.get("tags", []):
+            if tag.startswith("_category:"):
+                package["category"] = tag.split(":", 1)[-1]
+                context["categories"].add(package["category"])
+    context["categories"] = sorted(context["categories"])
 
     try:
         with open(dest_dir / "index.html", "w") as fh:

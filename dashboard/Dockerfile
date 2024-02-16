@@ -16,26 +16,19 @@ RUN \
             -d /var/www/assets/fira \
             && rm -f 4.202.zip \
     # FontAwesome font
-    && curl -L -O https://use.fontawesome.com/releases/v6.2.0/fontawesome-free-6.2.0-web.zip \
-        && unzip -o fontawesome-free-6.2.0-web.zip \
-            fontawesome-free-6.2.0-web/css/* \
-            fontawesome-free-6.2.0-web/webfonts/* \
+    && curl -L -O https://use.fontawesome.com/releases/v6.5.1/fontawesome-free-6.5.1-web.zip \
+        && unzip -o fontawesome-free-6.5.1-web.zip \
+            fontawesome-free-6.5.1-web/css/* \
+            fontawesome-free-6.5.1-web/webfonts/* \
             -d /var/www/assets/ \
-        && mv /var/www/assets/fontawesome-free-6.2.0-web /var/www/assets/fontawesome \
-        && rm -f fontawesome-free-6.2.0-web.zip \
-    # Pure CSS
-    && curl \
-        -L -o /var/www/assets/pure-min.css \
-        https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css \
-    && curl \
-        -L -o /var/www/assets/grids-responsive-min.css \
-        https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css \
+        && mv /var/www/assets/fontawesome-free-6.5.1-web /var/www/assets/fontawesome \
+        && rm -f fontawesome-free-6.5.1-web.zip \
     # python dependencies
     && python3 -m venv /usr/local/bin/gen-home_env \
     && /usr/local/bin/gen-home_env/bin/pip3 install --no-cache-dir -U pip \
     && /usr/local/bin/gen-home_env/bin/pip3 install \
         --no-cache-dir \
-        Jinja2==3.1.2 PyYAML==6.0.1 humanfriendly==10.0 libzim==3.4.0 \
+        Jinja2==3.1.2 PyYAML==6.0.1 humanfriendly==10.0 iso639-lang==2.2.3 libzim==3.4.0 \
     && apk del curl
 
 ENV FQDN "generic.hotspot"

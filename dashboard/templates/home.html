@@ -1,62 +1,286 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <title>{{ name }}</title>
-        <link rel="icon" href="/assets/favicon.png">
-        <link href="/assets/fontawesome/css/fontawesome.css" rel="stylesheet">
-        <link href="/assets/fontawesome/css/solid.css" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="/assets/pure-min.css" />
-        <link rel="stylesheet" type="text/css" href="/assets/grids-responsive-min.css" />
-        <link rel="stylesheet" type="text/css" href="/assets/dashboard.css" />
-    </head>
-    <body class="pure-g pure-u-1">
-        <header class="pure-u-1">
-          <div class="pure-g">
-            <div class="pure-u-1 pure-u-sm-3-5 pure-u-md-2-5 pure-u-lg-2-5 pure-u-xl-6-24 pure-u-xxl-4-24">
-              <a href="/">
-                <img class="pure-img" src="/assets/logo.png"></img>
-              </a>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{{ name }}</title>
+    <link rel="icon" href="/assets/favicon.png">
+    <!-- <link rel="stylesheet" type="text/css" href="/assets/pure-min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/grids-responsive-min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/dashboard.css" /> -->
+    <link rel="stylesheet" type="text/css" href="/assets/dashboard-tw.css" />
+    <link href="/assets/fontawesome/css/fontawesome.css" rel="stylesheet">
+    <link href="/assets/fontawesome/css/solid.css" rel="stylesheet">
+  </head>
+  <body class="bg-kwbggrey">
+    <header class="bg-white">
+      <nav class="xl:container 2xl:max-w-screen-xl mx-auto h-[96px]">
+        <div class="flex flex-row h-[96px] leading-[96px]">
+            <div class="flex flex-auto">
+              <a href="/" class=""><img class="object-scale-down w-[11em] h-[96px] object-left" src="/assets/logo.png" /></a></div>
+            <div class="flex flex-none font-bold">
+                <a href="" class="hover:text-kworange-500 active:text-kworange text-kworange me-4">BROWSE</a><a class="hover:text-kworange-500 active:text-kworange " href="/downloads">DOWNLOAD</a>
             </div>
+        </div>
+      </nav>
+    </header>
+    <div class="bg-kwfiltersgrey h-[67px] leading-[67px] ring-kwfiltersgrey-900 ring-2 ring-inset">
+      <nav class="xl:container 2xl:max-w-screen-xl mx-auto grid grid-cols-4">
+        <div>
+          <button id="sort-by-name" value="name" class="btn btn-sm pointer-cursor">Name</button>
+          <button id="sort-by-size" value="size" class="btn btn-sm pointer-cursor">Size</button>
+        </div>
+        <div>
+          <button id="order-desc" value="desc" class="kiwix-order-dir-btn"><i class="fa-solid fa-arrow-down"></i></button>
+          <button id="order-asc" value="asc" class="kiwix-order-dir-btn kiwix-order-dir-btn-active"><i class="fa-solid fa-arrow-up"></i></button>
+        </div>
+        <div>
+          <label for="languages-list">Languages</label>
+          <select id="languages-list" class="select select-bordered select-sm max-w-xs">
+            <option value="">All</option>
+            {% for code, name in languages.items() %}<option value="{{ code }}">{{ name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="categories-list">Categories</label>
+          <select id="categories-list" class="select select-bordered select-sm max-w-xs">
+            <option value="">All</option>
+            {% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+          </select>
+        </div>
+      </nav>
+    </div>
+    <section id="entries" class="xl:container 2xl:max-w-screen-xl justify-center auto-cols-min box-border mx-auto my-4 w-100 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-4">
+      {% for package in packages %}
+        <div
+          class="hotspot-entry cursor-pointer box-border bg-white rounded-lg border-kwbordergrey border-solid border w-[245px] h-[260px] pl-2.5 pt-4 pr-5 pb-5 text-kwtextgrey order-[{{ loop.index0 }}]"
+          data-target="{{ package.url }}"
+          data-category="{{ package.category }}"
+          data-langs="{% if package.langs %}{% for lang in package.languages %}{{ lang }} {% endfor %}{% endif %}"
+          data-name="{{ package.title }}"
+          data-size="{% if package.download and package.download.size %}{{ package.download.size }}{% else %}0{% endif %}">
+          <div class="flex flex-row h-[38px] mb-[20px]">
+            <img class="flex-none size-[38px] rounded-xl mr-1.5" src="data:image/png;base64,{% if package.icon %}{{ package.icon }}{% endif %}" />
+            <a class="tooltip" data-tip="{{ package.title }}" href="{{ package.url }}"><h2 class="flex-auto text-lg text-kwtextblack leading-5 text-left">{{ package.title|truncate(30, killwords=True, end="") }}</h2></a>
           </div>
-        </header>
-        <section class="cards pure-g">
-          {% for package in packages %}
-          <div class="card-container pure-u-1 pure-u-md-12-24 pure-u-lg-8-24 pure-u-xl-1-4 pure-u-xxl-5-24 pure-u-xxxl-4-24 pure-u-x4k-1-24">
-              <div class="card">
-                <a class="package-link" href="{{ package.url }}">
-                  <div class="pure-g">
-                    <div class="package-icon pure-u-1-4">
-                      {% if package.icon %}<img src="data:image/png;base64,{{ package.icon }}" />{% endif %}
-                    </div>
-                    <div class="pure-u-3-4 title">{{ package.title }}</div>
-                </div>
-              </a>
-                <div class="pure-g description">
-                  <p class="pure-u-1">{{ package.description|default("-")|truncate(80) }}</p>
-                </div>
-                <div class="pure-g metadata">
-                  <div class="pure-u-1-5">
-                    <div class="langs">
-                      {% if package.langs %}{% for lang in package.langs %}{% if loop.index0 <= 2 %}<span class="lang">{{ lang }}</span>{% endif %}{% endfor %}{% endif %}
-                    </div>
-                  </div>
-                  <div class="pure-u-4-5 tags">
-                    {% if package.tags %}{% for tag in package.tags %}{% if loop.index0 <= 2 %}<span class="tag">{{ tag }}</span>{% endif %}{% endfor %}{% endif %}
-                  </div>
-                </div>
-                <div class="download">
-                  {% if package.download and package.download.url %}<a title="Download “{{ package.title }}” ZIM file" href="{{ package.download.url }}"><i class="fa-solid fa-download"></i>{% if package.download.size %} {{ package.download.size|fsize }}{% endif %}</a>{% endif %}
-                </div>
-              </div>
+
+          <div class="flex flex-row mb-[10px] h-[135px]">
+            <div class="flex-none w-[20px]">{% if package.langs %}{% for lang in package.langs %}{% if loop.index0 <= 2 %}<span class="rounded-md border-kwbordergrey border-solid border p-1 size-[20px] uppercase text-xs">{{ lang }}</span>{% endif %}{% endfor %}{% endif %}</div>
+            <div class="flex-auto ml-[20px]"><p class="text-base text-pretty overscroll-y-none xbg-lime-300">{{ package.description|default("-")|truncate(80, killwords=False, end="…") }}</p></div>
           </div>
-          {% else %}
-          <p>No content packages 🙁</p>
-          {% endfor %}
-        </section>
-        <footer class="pure-u-1">
-          {% if footer_note %}<p>{{ footer_note }}</p>{% endif %}
-        </footer>
-    </body>
+
+          <div class="flex flex-row">
+            <div class="flex-none w-[50px]">{% if package.download and package.download.size %}<span class="text-xs">{{ package.download.size|fsize }}</span>{% endif %}</div>
+            <div class="flex-auto">{% if package.tags %}{% for tag in package.tags %}{% if loop.index0 <= 1 %}<span class="rounded-xl px-2 py-0.5 bg-kwtagbggrey text-white text-xs font-medium justify-center me-1 last:me-0">{{ tag }}</span>{% endif %}{% endfor %}{% endif %}</div>
+          </div>
+        </div>
+      {% else %}
+      <p>No content packages 🙁</p>
+      {% endfor %}
+    </section>
+    <footer class="footer footer-center h-8 bg-kworange">
+    </footer>
+    <script type="text/javascript">
+// matches polyfill
+this.Element && function(ElementPrototype) {
+    ElementPrototype.matches = ElementPrototype.matches ||
+    ElementPrototype.matchesSelector ||
+    ElementPrototype.webkitMatchesSelector ||
+    ElementPrototype.msMatchesSelector ||
+    function(selector) {
+        var node = this, nodes = (node.parentNode || node.document).querySelectorAll(selector), i = -1;
+        while (nodes[++i] && nodes[i] != node);
+        return !!nodes[i];
+    }
+}(Element.prototype);
+// closest polyfill
+this.Element && function(ElementPrototype) {
+    ElementPrototype.closest = ElementPrototype.closest ||
+    function(selector) {
+        var el = this;
+        while (el.matches && !el.matches(selector)) el = el.parentNode;
+        return el.matches ? el : null;
+    }
+}(Element.prototype);
+
+// helper for enabling IE 8 event bindings
+function addEvent(el, type, handler) {
+    if (el.attachEvent) el.attachEvent('on'+type, handler); else el.addEventListener(type, handler);
+}
+
+function hasClass(el, className) {
+  return el.classList ? el.classList.contains(className) : new RegExp('\\b'+ className+'\\b').test(el.className);
+}
+
+function addClass(el, className) {
+  if (el.classList) el.classList.add(className);
+  else if (!hasClass(el, className)) el.className += ' ' + className;
+}
+
+function removeClass(el, className) {
+  if (el.classList) el.classList.remove(className);
+  else el.className = el.className.replace(new RegExp('\\b'+ className+'\\b', 'g'), '');
+}
+
+function toggleClass(el, className) {
+  if (hasClass(el, className))
+    removeClass(el, className);
+  else
+    addClass(el, className);
+}
+
+// live binding helper using matchesSelector
+function live(selector, event, callback, context) {
+    addEvent(context || document, event, function(e) {
+        var found, el = e.target || e.srcElement;
+        while (el && el.matches && el !== context && !(found = el.matches(selector))) el = el.parentElement;
+        if (found) callback.call(undefined, el, e);
+    });
+}
+function run() {
+  live('.hotspot-entry', 'click', function(el, ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    let target = '';
+    if (hasClass(el, 'hotspot-entry')) {
+      target = el.getAttribute('data-target');
+    } else { // should not happen
+      let entryEl = el.closest('.hotspot-entry');
+      target = entryEl.getAttribute('data-target');
+    }
+    console.log(`Going to ${target}`)
+    // window.location.assign(target);
+  });
+
+  const Filtering = class {
+    order_by = '';
+    order_dir = '';
+    only_lang = '';
+    only_category = '';
+
+    constructor(order_by, order_dir, only_lang, only_category) {
+      this.order_by = order_by || this.order_by;
+      this.order_dir = order_dir || this.order_dir;
+      this.only_lang = only_lang || this.only_lang;
+      this.only_category = only_category || this.only_category;
+    }
+
+    sortByNameAsc(a, b) {
+      a = a.getAttribute('data-name').toLowerCase();
+      b = b.getAttribute('data-name').toLowerCase();
+      if (a == b)
+        return 0;
+      return a < b ? -1 : 1;
+    }
+
+    sortByNameDesc(a, b) {
+      a = a.getAttribute('data-name').toLowerCase();
+      b = b.getAttribute('data-name').toLowerCase();
+      if (a == b)
+        return 0;
+      return a > b ? -1 : 1;
+    }
+
+    sortBySizeAsc(a, b) {
+      a = parseInt(a.getAttribute('data-size'));
+      b = parseInt(b.getAttribute('data-size'));
+      if (a == b)
+        return 0;
+      return a < b ? -1 : 1;
+    }
+
+    sortBySizeDesc(a, b) {
+      a = parseInt(a.getAttribute('data-size'));
+      b = parseInt(b.getAttribute('data-size'));
+      if (a == b)
+        return 0;
+      return a > b ? -1 : 1;
+    }
+
+    sortByDOMOrder(a, b) {
+      return 0;
+    }
+
+    getSortFunction() {
+      if (this.order_by == 'name')
+        return (this.order_dir == 'asc') ? this.sortByNameAsc : this.sortByNameDesc;
+      if (this.order_by == 'size')
+        return (this.order_dir == 'asc') ? this.sortBySizeAsc : this.sortBySizeDesc;
+      return this.sortByDOMOrder;
+    }
+
+    render(withSorting) {
+      console.log('render only_lang:', this.only_lang, 'only_category:', this.only_category, 'order_by:', this.order_by, 'order_dir:', this.order_dir);
+      const elems = document.getElementById('entries').getElementsByClassName('hotspot-entry');
+      for (var i=0; i<elems.length; i++) {
+        const langs = elems[i].getAttribute('data-langs').split(' ');
+        const category = elems[i].getAttribute('data-category');
+        var visible = true;
+        if (this.only_lang && langs.indexOf(this.only_lang) == -1)
+          visible = false;
+        if (visible && this.only_category && this.only_category != category)
+          visible = false;
+
+        if (visible)
+          removeClass(elems[i], 'hidden');
+        else
+          addClass(elems[i], 'hidden');
+      }
+
+      if (!withSorting)
+        return;
+
+
+      const sortedElems = [].slice.call(elems).toSorted(this.getSortFunction());
+      for (var i=0; i<elems.length; i++) {
+        elems[i].style.order = sortedElems.indexOf(elems[i]);
+      }
+    };
+  };
+
+  var filter = new Filtering();
+
+  live('#languages-list', 'change', function(el, ev){
+    if (filter.only_lang == el.value)
+      return;
+    filter.only_lang = el.value;
+    filter.render();
+  });
+  live('#categories-list', 'change', function(el, ev){
+    filter.only_category = el.value;
+    filter.render();
+  });
+
+  function onSortByButtonClick (el, ev) {
+    if (filter.order_by == el.value)
+      return;
+    filter.order_by = el.value;
+    filter.render(true);
+  }
+  function onOrderDirButtonClick (el, ev) {
+    if (filter.order_dir == el.value)
+      return;
+    const btns = document.getElementsByClassName('kiwix-order-dir-btn');
+    console.log('onSortByButtonClick', btns.length)
+    for (var i=0; i<btns.length; i++) {
+      toggleClass(btns[i], 'kiwix-order-dir-btn-active');
+      console.log(btns[i]);
+    }
+    filter.order_dir = el.value;
+    filter.render(true);
+  }
+
+  live('#sort-by-name', 'click', onSortByButtonClick);
+  live('#sort-by-size', 'click', onSortByButtonClick);
+  live('#order-desc', 'click', onOrderDirButtonClick);
+  live('#order-asc', 'click', onOrderDirButtonClick);
+
+  // filter.render();
+}
+
+if (document.readyState!='loading') run(); // already loaded
+else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run); // modern browsers
+else document.attachEvent('onreadystatechange', function() { if (document.readyState=='complete') run();}); // IE <= 8
+    </script>
+  </body>
 </html>
