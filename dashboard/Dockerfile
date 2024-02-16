@@ -3,39 +3,23 @@ LABEL org.opencontainers.image.source https://github.com/offspot/container-image
 
 RUN \
     apk add --no-cache curl dumb-init yaml python3 lighttpd \
-    # Fira font
-    && mkdir -p /var/www/assets/fira \
-    && curl -L -O https://github.com/mozilla/Fira/archive/refs/tags/4.202.zip \
-        && unzip -j -o 4.202.zip \
-            Fira-4.202/eot/FiraSans-Bold.eot \
-            Fira-4.202/eot/FiraSans-Regular.eot \
-            Fira-4.202/ttf/FiraSans-Bold.ttf \
-            Fira-4.202/ttf/FiraSans-Regular.ttf \
-            Fira-4.202/woff/FiraSans-Bold.woff \
-            Fira-4.202/woff/FiraSans-Regular.woff \
-            -d /var/www/assets/fira \
-            && rm -f 4.202.zip \
     # FontAwesome font
-    && curl -L -O https://use.fontawesome.com/releases/v6.2.0/fontawesome-free-6.2.0-web.zip \
-        && unzip -o fontawesome-free-6.2.0-web.zip \
-            fontawesome-free-6.2.0-web/css/* \
-            fontawesome-free-6.2.0-web/webfonts/* \
+    && curl -L -O https://use.fontawesome.com/releases/v6.5.1/fontawesome-free-6.5.1-web.zip \
+        && unzip -o fontawesome-free-6.5.1-web.zip \
+            fontawesome-free-6.5.1-web/css/* \
+            fontawesome-free-6.5.1-web/webfonts/* \
             -d /var/www/assets/ \
-        && mv /var/www/assets/fontawesome-free-6.2.0-web /var/www/assets/fontawesome \
-        && rm -f fontawesome-free-6.2.0-web.zip \
-    # Pure CSS
-    && curl \
-        -L -o /var/www/assets/pure-min.css \
-        https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css \
-    && curl \
-        -L -o /var/www/assets/grids-responsive-min.css \
-        https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css \
+        && mv /var/www/assets/fontawesome-free-6.5.1-web /var/www/assets/fontawesome \
+        && rm -f fontawesome-free-6.5.1-web.zip \
     # python dependencies
     && python3 -m venv /usr/local/bin/gen-home_env \
     && /usr/local/bin/gen-home_env/bin/pip3 install --no-cache-dir -U pip \
     && /usr/local/bin/gen-home_env/bin/pip3 install \
         --no-cache-dir \
-        Jinja2==3.1.2 PyYAML==6.0.1 humanfriendly==10.0 libzim==3.4.0 \
+        Jinja2==3.1.2 PyYAML==6.0.1 humanfriendly==10.0 iso639-lang==2.2.3 libzim==3.4.0 \
+    # install tailwind CSS cli
+    && curl -L -o /usr/local/bin/tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/download/v3.4.3/tailwindcss-linux-arm64 \
+    && chmod +x /usr/local/bin/tailwindcss \
     && apk del curl
 
 ENV FQDN "generic.hotspot"
@@ -62,7 +46,7 @@ ENV KIWIX_DOWNLOAD_LINK_TPL "//zim-download.{fqdn}/{zim_filename}"
 # it's OK on prod but comment it during dev if you need packages
 RUN apk del apk-tools ca-certificates-bundle
 
-COPY gen-home.py refresh-zims.py /src/
+COPY gen-home.py refresh-zims.py tailwind.config.js /src/
 COPY templates /src/templates
 COPY assets /var/www/assets
 COPY fallback.html /var/www/fallback.html
@@ -70,8 +54,17 @@ COPY home.yaml /src/
 COPY lighttpd.conf /etc/lighttpd/
 COPY entrypoint.sh /usr/local/bin/
 
-# store python bytecode in image
-RUN /usr/local/bin/gen-home_env/bin/python3 -m compileall /src/gen-home.py /src/refresh-zims.py && mv /src/__pycache__/*.pyc /usr/local/bin/gen-home_env/lib/
+WORKDIR /src
+
+RUN \
+    # gen final CSS
+    tailwindcss -i /var/www/assets/dashboard-tailwind-src.css -o /var/www/assets/dashboard.css \
+    && rm -f /var/www/assets/dashboard-tailwind-src.css \
+    && rm -f /usr/local/bin/tailwindcss \
+    # store python bytecode in image
+    && /usr/local/bin/gen-home_env/bin/python3 -m compileall /src/gen-home.py /src/refresh-zims.py && mv /src/__pycache__/*.pyc /usr/local/bin/gen-home_env/lib/
+
+WORKDIR /var/www
 
 HEALTHCHECK --interval=10s --timeout=2s CMD ["/bin/ls", "/tmp/.ready"]
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/entrypoint.sh"]
