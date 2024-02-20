@@ -3,32 +3,56 @@
 @tailwind utilities;
 
 @layer components {
-  .kiwix-order-dir-btn {
-    @apply mr-1 last:mr-0 cursor-pointer p-0 leading-[2em] h-[2em] w-[1.7em] rounded-md border-white text-kwordergrey-100 bg-white hover:bg-kwordergrey-600 hover:text-white drop-shadow-md;
+  .kiwix-home-btn {
+    @apply hover:bg-kwordergrey-600 hover:text-white bg-kwordergrey-500 text-kwwhite;
   }
-  .kiwix-order-dir-btn-active {
-    @apply bg-kwordergrey-500 text-kwwhite drop-shadow-none;
+  .kiwix-home-btn-active {
+    @apply border-white text-kwordergrey-500 bg-white drop-shadow-md hover:text-kwordergrey-500 hover:bg-white hover:cursor-default;
   }
-}
 
-@font-face {
-   font-family: 'Arial MT';
-   src: local('Arial MT'),
-        url('/assets/Arial MT Std Regular.otf') format('opentypefont');
-   font-weight: normal;
-   font-style: normal;
-   font-display: swap;
-}
-@font-face {
-   font-family: 'Arial MT';
-   src: local('Arial MT'),
-        url('/assets/Arial-BoldMT.ttf') format('truetype');
-   font-weight: bold;
-   font-style: normal;
-   font-display: swap;
+  .kiwix-download-btn {
+    @apply hover:bg-kworange-800 hover:text-white bg-kworange-500 text-kwwhite;
+  }
+  .kiwix-download-btn-active {
+    @apply border-white text-kworange-100 bg-white drop-shadow-md hover:text-kworange-100 hover:bg-white hover:cursor-default;
+  }
+
+  .kiwix-order-dir-btn {
+    @apply mr-1 last:mr-0 cursor-pointer p-0 text-[11pt] leading-[13pt] h-[1.7em] w-[1.7em] rounded-md drop-shadow-none;
+  }
+
+  .kiwix-sort-btn {
+    @apply mr-0 last:mr-0 cursor-pointer box-border px-[2em] py-0 text-[11pt] leading-[13pt] h-[2em] rounded-2xl min-w-[3em] md:min-w-[6em]  relative z-40 pr-[1.8em] drop-shadow-none;
+  }
+  .kiwix-sort-btn-active {
+    @apply z-50 pr-[2em] hover:cursor-default;
+  }
+
+  .kiwix-home-filter-label {
+
+  }
+
+  .kiwix-download-filter-label {
+    @apply text-white;
+  }
+
+  .kiwix-reader-platform-btn {
+    @apply cursor-pointer border-white border bg-kwreaderbggrey text-white text-sm rounded-xl px-3 py-1 me-3 last:me-0 hover:bg-kwreaderhover hover:text-white hover:border-white;
+  }
+
+  .kiwix-reader-platform-btn-active {
+    @apply text-kwreaderbggrey bg-white drop-shadow-md hover:text-kwreaderbggrey hover:bg-white hover:border-white hover:cursor-default;
+  }
+
+  .kiwix-home-innerglow {
+    box-shadow: inset 0 0 1em #a6b2bd;
+  }
+
+  .kiwix-download-innerglow {
+    box-shadow: inset 0 0 1em #c60;
+  }
 }
 
 body {
-    font-family: Arial MT, Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
-/*  font-family: ui-rounded, 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manjari, 'Arial Rounded MT', 'Arial Rounded MT Bold', Calibri, source-sans-pro, sans-serif;*/
+    font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
 }

@@ -72,6 +72,18 @@ def format_fsize(size: str | int) -> str:
 env.filters["fsize"] = format_fsize
 
 
+def normalize(url: str) -> str:
+    if not url.strip():
+        return ""
+    uri = urllib.parse.urlparse(url)
+    if not uri.scheme and not url.startswith("//"):
+        url = f"//{url}"
+
+    url = re.sub(r"{([a-z]+)-fqdn}", r"\1.{fqdn}", url)
+    url = url.replace("{fqdn}", Conf.fqdn)
+    return url
+
+
 class Conf:
     debug: bool = bool(os.getenv("DEBUG", False))
     fqdn: str = ""
@@ -90,14 +102,39 @@ class Conf:
         }
 
 
+class Link(dict):
+    MANDATORY_FIELDS = ["name", "url"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self["url"] = normalize(self.get("url", ""))
+
+
+class Reader(dict):
+    MANDATORY_FIELDS = ["platform", "url", "size"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self["url"] = normalize(self.get("url", ""))
+
+    @property
+    def name(self) -> str:
+        return {
+            "windows": "Windows",
+            "android": "Android",
+            "macos": "macOS",
+            "linux": "Linux",
+        }.get(self["platform"].lower(), self["platform"])
+
+
 class Package(dict):
     MANDATORY_FIELDS = ["title", "url"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self["url"] = self.normalize(self.get("url", ""))
+        self["url"] = normalize(self.get("url", ""))
         try:
-            self["download"]["url"] = self.normalize(self["download"]["url"])
+            self["download"]["url"] = normalize(self["download"]["url"])
         except KeyError:
             ...
 
@@ -108,18 +145,6 @@ class Package(dict):
     @property
     def private_tags(self) -> list[str]:
         return [tag for tag in self.get("tags", []) if tag.startswith("_")]
-
-    @staticmethod
-    def normalize(url: str) -> str:
-        if not url.strip():
-            return ""
-        uri = urllib.parse.urlparse(url)
-        if not uri.scheme and not url.startswith("//"):
-            url = f"//{url}"
-
-        url = re.sub(r"{([a-z]+)-fqdn}", r"\1.{fqdn}", url)
-        url = url.replace("{fqdn}", Conf.fqdn)
-        return url
 
     @property
     def visible(self):
@@ -158,10 +183,17 @@ def gen_home(fpath: pathlib.Path):
                 package["category"] = tag.split(":", 1)[-1]
                 context["categories"].add(package["category"])
     context["categories"] = sorted(context["categories"])
+    context["readers"] = [Reader(**item) for item in document.get("readers", [])]
+    context["links"] = [Link(**item) for item in document.get("links", [])]
 
     try:
         with open(dest_dir / "index.html", "w") as fh:
+            context["page"] = "home"
             fh.write(env.get_template("home.html").render(**context))
+
+        with open(dest_dir / "download", "w") as fh:
+            context["page"] = "download"
+            fh.write(env.get_template("download.html").render(**context))
     except Exception as exc:
         print("[CRITICAL] unable to gen homepage, using fallback")
         traceback.print_exception(exc)

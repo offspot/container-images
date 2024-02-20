@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block entries %}
+    <section
+      id="entries"
+      class="xl:max-w-screen-xl lg:max-w-screen-lg md:max-w-screen-md sm:max-w-screen-sm 2xl:max-w-screen-xl mx-auto justify-center auto-cols-min box-border mx-auto my-4 grid grid-cols-1f gap-y-2"
+    >
+
+      <div id="readers-banner" class="hidden bg-kwreaderbggrey rounded-lg text-white h-[100px] flex flex-row mb-2 px-[15px] py-[8px]">
+          <div class="flex-none w-[3em] flex items-center">
+            <img class="flex-none size-[30px] rounded-xl mr-1.5" src="/assets/kiwix-bird-white.png" />
+          </div>
+          <div class="flex-none w-[21em]  flex items-center">
+            <h2 class="flex-auto text-lg text-left">Kiwix Reader</h2>
+          </div>
+          <div class="flex-none w-[52.2em]  flex items-center">
+            <p class="text-md leading-4 text-pretty overscroll-y-none text-[11pt] leading-[24pt]">Download a reader software for your device's platform to use ZIM files locally.<br/>
+              {% for reader in readers %}
+              <a
+                href="{{ reader.url }}"
+                data-size="{{ reader.size }}"
+                class="kiwix-reader-platform-btn"><i class="fa fa-download fa-sm"></i> {{ reader.name }}</a>
+              {% endfor %}
+            </p>
+          </div>
+
+          <div class="flex-none w-[1.8em] text-center  flex items-center">
+              <div class="hover:text-kwreaderhover text-white cursor-pointer text-center text-[1.5em] leading-[1.5em] h-[1.5em] p-0">
+                <i id="remove-readers-banner-btn" class="fa fa-xmark"></i>
+              </div>
+          </div>
+        </div>
+
+        {% for package in packages %}
+        {% if package.download and package.download.size %}
+        <div
+          class="hotspot-entry hover:bg-kwbgwhitehover flex flex-row box-border bg-white rounded-lg border-kwbordergrey border-solid border px-[1em] py-[8px] text-kwtextgrey order-[{{ loop.index0 }}] h-[47px]"
+          data-target="{{ package.url }}"
+          data-category="{{ package.category }}"
+          data-langs="{% if package.langs %}{% for lang in package.languages %}{{ lang }} {% endfor %}{% endif %}"
+          data-name="{{ package.title }}"
+          data-size="{% if package.download and package.download.size %}{{ package.download.size }}{% else %}0{% endif %}">
+
+          <div class="flex-none w-[3em]  flex items-center">
+            <img class="flex-none size-[30px] mr-1.5" src="data:image/png;base64,{% if package.icon %}{{ package.icon }}{% endif %}" />
+          </div>
+          <div class="flex-none w-[21em]  flex items-center">
+            <h2 class="flex-auto text-lg text-kwtextblack leading-[1.7em] p-0 text-left">{{ package.title|truncate(30, killwords=True, end="…") }}</h2>
+          </div>
+          <div class="flex-none w-[29em]  flex items-center">
+            <p class="text-sm leading-4 text-pretty overscroll-y-none text-[11pt] leading-[12pt]">{{ package.description|default("-")|truncate(80, killwords=False, end="…") }}</p>
+          </div>
+          <div class="flex-none w-[5em] text-center  flex items-center">
+            <span class="text-xs">{{ package.download.size|fsize }}</span>
+          </div>
+          <div class="flex-none w-[5em] flex items-center">
+            <div class="flex-none text-left">
+              {% if package.langs %}
+              {% for lang in package.langs %}
+              {% if loop.index0 < 2 %}
+              <span
+                class="rounded-md border-kwbordergrey border-solid border text-center text-[0.7em] pt-[0.32em] pb-[0.32em] px-[0.3em] uppercase me-1 last:me-0"
+              >{{ lang }}</span>
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="flex-none w-[13em]  flex items-center">
+            {% if package.tags %}{% for tag in package.tags %}{% if loop.index0 <= 1 %}<span class="rounded-xl px-2 py-0.5 bg-kwtagbggrey text-white text-xs font-medium justify-center me-1 last:me-0">{{ tag }}</span>{% endif %}{% endfor %}{% endif %}
+          </div>
+
+          <div class="flex-none w-[2em]  flex items-center">
+            <div class="hover:bg-kworange-700 cursor-pointer rounded-md bg-kworange text-white text-center w-[1.8em] leading-[1.8em] h-[1.8em] p-0">
+              <a href="{{ package.download.url }}" download>
+                <i class="fa fa-download"></i>
+              </a>
+            </div>
+          </div>
+
+        </div>
+        {% endif %}
+      {% else %}
+      <p>No content packages 🙁</p>
+      {% endfor %}
+    </section>
+{% endblock %}
