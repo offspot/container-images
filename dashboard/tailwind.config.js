@@ -13,6 +13,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xxs': {'min': '376px', 'max': '439px'},
+        'xs': {'min': '450px', 'max': '639px'},
+      },
       colors: {
         kwwhite: '#eef2f6',
         kwbgwhitehover: '#f7f8fa',
@@ -61,7 +65,13 @@ module.exports = {
       }
     }
   },
-  plugins: [require("daisyui")],
+  // corePlugins: {
+  //   aspectRatio: false,
+  // },
+  plugins: [
+    require("daisyui"),
+    // require('@tailwindcss/aspect-ratio'),
+  ],
   daisyui: {
     themes: false, // false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]
     darkTheme: "light", // name of one of the included themes for dark mode

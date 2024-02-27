@@ -18,11 +18,11 @@
   }
 
   .kiwix-order-dir-btn {
-    @apply mr-1 last:mr-0 cursor-pointer p-0 text-[11pt] leading-[13pt] h-[1.7em] w-[1.7em] rounded-md drop-shadow-none;
+    @apply mr-1 last:mr-0 cursor-pointer p-0 text-[0.9em] leading-[1.1em] h-[1.7em] w-[1.7em] rounded-md drop-shadow-none;
   }
 
   .kiwix-sort-btn {
-    @apply mr-0 last:mr-0 cursor-pointer box-border px-[2em] py-0 text-[11pt] leading-[13pt] h-[2em] rounded-2xl min-w-[3em] md:min-w-[6em]  relative z-40 pr-[1.8em] drop-shadow-none;
+    @apply mr-0 last:mr-0 cursor-pointer box-border px-[2em] py-0 text-[0.9em] leading-[1.1em] h-[2em] rounded-2xl min-w-[3em] md:min-w-[6em]  relative z-40 pr-[1.8em] drop-shadow-none;
   }
   .kiwix-sort-btn-active {
     @apply z-50 pr-[2em] hover:cursor-default;
@@ -37,7 +37,7 @@
   }
 
   .kiwix-reader-platform-btn {
-    @apply cursor-pointer border-white border bg-kwreaderbggrey text-white text-sm rounded-xl px-3 py-1 me-3 last:me-0 hover:bg-kwreaderhover hover:text-white hover:border-white;
+    @apply cursor-pointer border-white border bg-kwordergrey-500 md:bg-kwordergrey-500 md:bg-kwreaderbggrey text-white text-sm rounded-xl px-3 py-1 sm:me-1 lg:me-3 last:me-0 hover:bg-kwordergrey-600 md:hover:bg-kwreaderhover hover:text-white hover:border-white;
   }
 
   .kiwix-reader-platform-btn-active {
@@ -50,6 +50,27 @@
 
   .kiwix-download-innerglow {
     box-shadow: inset 0 0 1em #c60;
+  }
+
+  .content-max-w {
+    @apply sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-md xl:max-w-screen-lg 2xl:max-w-screen-xl;
+  }
+
+  .content-w {
+    @apply sm:w-[640px] md:w-[768px] lg:w-[1024px] xl:w-[1280px] 2xl:w-[1536px] w-[90%] mx-auto;
+  }
+
+  .mini-height-card-90 {
+    height: calc((90vw /8.79) * 4.69);
+  }
+  .mini-height-card-60 {
+    height: calc((60vw /8.79) * 4.69);
+  }
+  .inherit {
+    position: inherit;
+  }
+  .hide-after-2:nth-child(3), .hide-after-2:nth-child(4) {
+    @apply hidden;
   }
 }
 

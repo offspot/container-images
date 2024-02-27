@@ -126,6 +126,15 @@ class Reader(dict):
             "linux": "Linux",
         }.get(self["platform"].lower(), self["platform"])
 
+    @property
+    def icon(self) -> str:
+        return {
+            "windows": "windows",
+            "android": "android",
+            "macos": "apple",
+            "linux": "linux",
+        }.get(self["platform"].lower(), "robot")
+
 
 class Package(dict):
     MANDATORY_FIELDS = ["title", "url"]
