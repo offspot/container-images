@@ -207,6 +207,7 @@ def gen_caddyfile():
                     services=services,
                     nb_services=len(services),
                     files_map=files_map,
+                    is_online_demo=is_online_demo,
                 )
             )
     except Exception as exc:
