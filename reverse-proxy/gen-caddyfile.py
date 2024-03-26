@@ -93,13 +93,16 @@ files_map: dict[str, str] = {
 }
 
 debug: bool = bool(os.getenv("DEBUG", False))
+is_online_demo: bool = bool(os.getenv("IS_ONLINE_DEMO", False))
 template: Template = Template(
     """
 {
     admin :2020
+    {% if not is_online_demo %}
     auto_https disable_redirects
     local_certs
     skip_install_trust
+    {% endif %}
     {% if debug %}debug{% endif %}
 
     log metrics {
@@ -122,7 +125,7 @@ template: Template = Template(
 
 # home page on domain, with prefix redirects
 {$FQDN}:80, {$FQDN}:443 {
-    tls internal
+    {% if is_online_demo %}tls {$DEMO_TLS_EMAIL}{% else %}tls internal{% endif %}
     log
 
     {% if services %}
@@ -139,14 +142,14 @@ template: Template = Template(
 
 # welcome fqdn redirects to homepage
 {$WELCOME_FQDN}:80, {$WELCOME_FQDN}:443 {
-    tls internal
+    {% if is_online_demo %}tls {$DEMO_TLS_EMAIL}{% else %}tls internal{% endif %}
     redir {scheme}://{$FQDN}{uri} permanent
 }
 
 {% if services %}# endpoint-based services
 {% for service in services.values() %}
 {{service.name}}.{$FQDN}:80, {{service.name}}.{$FQDN}:443 {
-    tls internal
+    {% if is_online_demo %}tls {$DEMO_TLS_EMAIL}{% else %}tls internal{% endif %}
     log
 
     {% if service.should_protect %}
@@ -169,7 +172,7 @@ template: Template = Template(
 {% if files_map %}# endpoint-based files_map
 {% for subdomain, folder in files_map.items() %}
 {{subdomain}}.{$FQDN}:80, {{subdomain}}.{$FQDN}:443 {
-    tls internal
+    {% if is_online_demo %}tls {$DEMO_TLS_EMAIL}{% else %}tls internal{% endif %}
     log
     reverse_proxy files:80 {
         rewrite /{{folder}}/{path}?{query}
@@ -185,7 +188,7 @@ template: Template = Template(
 
 # fallback for unhandled names/IP arriving here
 :80, :443 {
-    tls internal
+    {% if is_online_demo %}tls {$DEMO_TLS_EMAIL}{% else %}tls internal{% endif %}
     log
     respond "Not Found! Oops" 404
 }

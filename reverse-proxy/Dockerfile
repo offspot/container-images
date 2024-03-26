@@ -13,6 +13,10 @@ COPY gen-caddyfile.py /src/
 ENV FQDN "generic.hotspot"
 ENV WELCOME_FQDN "goto.generic.hotspot"
 ENV METRICS_LOGS_DIR "/var/log/metrics"
+# set this when using reverse proxy in online demo to trigger real SSL certs usage
+ENV IS_ONLINE_DEMO ""
+# read SSL certs require an email address to send expiration notice to
+ENV DEMO_TLS_EMAIL "dev@kiwix.org"
 
 # store python bytecode in image
 RUN python3 -m compileall /src/gen-caddyfile.py && mv /src/__pycache__/*.pyc /usr/local/lib/
