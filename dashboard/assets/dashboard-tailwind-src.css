@@ -53,20 +53,6 @@ select {
   background-position: calc(100% - 20px) calc(1px + 50%), calc(100% - 16.1px) calc(1px + 50%);
   background-size: 4px 4px, 4px 4px;
   background-repeat: no-repeat;
-
-  --tw-bg-opacity: 1;
-  padding-right: 2.5rem;
-  border-radius: var(--rounded-btn);
-  background-color: oklch(1 0 0);
-  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position: calc(100% - 20px) calc(1px + 50%), calc(100% - 16.1px) calc(1px + 50%);
-  background-size: 4px 4px, 4px 4px;
-  background-repeat: no-repeat;
-  &-bordered {
-    border-radius: var(--rounded-btn, 0.5rem);
-    border-width: 1px;
-    border-color: transparent;
-  }
 }
 
 [dir="rtl"] .select {
