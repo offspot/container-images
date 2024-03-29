@@ -18,8 +18,10 @@ import pathlib
 import re
 import traceback
 import urllib.parse
+from collections.abc import Iterable
 
 import humanfriendly
+import iso639
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import yaml
 
@@ -42,15 +44,44 @@ env = Environment(
 
 
 def format_fsize(size: str | int) -> str:
+    one_gib = 2**30
+    one_mib = 2**20
+    hundred_mib = one_gib / 10
+
+    def round_to(size: int, scale: int) -> int:
+        return (size // scale) * scale
+
     if not str(size).isdigit():
         size = humanfriendly.parse_size(str(size))
+    size = int(size)
+
+    if size > one_gib and size >= 100 * one_gib:
+        size = round_to(size, one_gib)
+    elif size > one_gib:
+        size = size = round_to(size, hundred_mib)
+    else:
+        size = round_to(size, one_mib)
     try:
-        return humanfriendly.format_size(int(size), keep_width=False, binary=True)
+        return humanfriendly.format_size(
+            int(size), keep_width=False, binary=True
+        ).replace("iB", "B")
     except Exception:
         return str(size)
 
 
 env.filters["fsize"] = format_fsize
+
+
+def normalize(url: str) -> str:
+    if not url.strip():
+        return ""
+    uri = urllib.parse.urlparse(url)
+    if not uri.scheme and not url.startswith("//"):
+        url = f"//{url}"
+
+    url = re.sub(r"{([a-z]+)-fqdn}", r"\1.{fqdn}", url)
+    url = url.replace("{fqdn}", Conf.fqdn)
+    return url
 
 
 class Conf:
@@ -71,14 +102,48 @@ class Conf:
         }
 
 
+class Link(dict):
+    MANDATORY_FIELDS = ["name", "url"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self["url"] = normalize(self.get("url", ""))
+
+
+class Reader(dict):
+    MANDATORY_FIELDS = ["platform", "url", "size"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self["url"] = normalize(self.get("url", ""))
+
+    @property
+    def name(self) -> str:
+        return {
+            "windows": "Windows",
+            "android": "Android",
+            "macos": "macOS",
+            "linux": "Linux",
+        }.get(self["platform"].lower(), self["platform"])
+
+    @property
+    def icon(self) -> str:
+        return {
+            "windows": "windows",
+            "android": "android",
+            "macos": "apple",
+            "linux": "linux",
+        }.get(self["platform"].lower(), "robot")
+
+
 class Package(dict):
     MANDATORY_FIELDS = ["title", "url"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self["url"] = self.normalize(self.get("url", ""))
+        self["url"] = normalize(self.get("url", ""))
         try:
-            self["download"]["url"] = self.normalize(self["download"]["url"])
+            self["download"]["url"] = normalize(self["download"]["url"])
         except KeyError:
             ...
 
@@ -89,18 +154,6 @@ class Package(dict):
     @property
     def private_tags(self) -> list[str]:
         return [tag for tag in self.get("tags", []) if tag.startswith("_")]
-
-    @staticmethod
-    def normalize(url: str) -> str:
-        if not url.strip():
-            return ""
-        uri = urllib.parse.urlparse(url)
-        if not uri.scheme and not url.startswith("//"):
-            url = f"//{url}"
-
-        url = re.sub(r"{([a-z]+)-fqdn}", r"\1.{fqdn}", url)
-        url = url.replace("{fqdn}", Conf.fqdn)
-        return url
 
     @property
     def visible(self):
@@ -126,13 +179,30 @@ def gen_home(fpath: pathlib.Path):
 
     Conf.from_doc(document.get("metadata", {}))
     context = Conf.to_dict()
-    context["packages"] = filter(
-        lambda p: p.visible, [Package(**item) for item in document["packages"]]
+    context["packages"] = list(
+        filter(lambda p: p.visible, [Package(**item) for item in document["packages"]])
     )
+    context["languages"] = {}
+    context["categories"] = set()
+    for package in context["packages"]:
+        for lang in package.get("languages", []):
+            context["languages"][lang] = iso639.Lang(lang).name
+        for tag in package.get("tags", []):
+            if tag.startswith("_category:"):
+                package["category"] = tag.split(":", 1)[-1]
+                context["categories"].add(package["category"])
+    context["categories"] = sorted(context["categories"])
+    context["readers"] = [Reader(**item) for item in document.get("readers", [])]
+    context["links"] = [Link(**item) for item in document.get("links", [])]
 
     try:
         with open(dest_dir / "index.html", "w") as fh:
+            context["page"] = "home"
             fh.write(env.get_template("home.html").render(**context))
+
+        with open(dest_dir / "download.html", "w") as fh:
+            context["page"] = "download"
+            fh.write(env.get_template("download.html").render(**context))
     except Exception as exc:
         print("[CRITICAL] unable to gen homepage, using fallback")
         traceback.print_exception(exc)
