@@ -24,9 +24,7 @@ select {
   padding: 0;
     padding-right: 0px;
     padding-left: 0px;
-}
 
-select {
   text-transform: none;
 }
 
@@ -55,24 +53,7 @@ select {
   background-position: calc(100% - 20px) calc(1px + 50%), calc(100% - 16.1px) calc(1px + 50%);
   background-size: 4px 4px, 4px 4px;
   background-repeat: no-repeat;
-}
 
-.max-w-xs {
-  max-width: 20rem;
-}
-.select-sm {
-  height: 2rem;
-  min-height: 2rem;
-  padding-left: 0.75rem;
-  padding-right: 2rem;
-  font-size: 0.875rem;
-  line-height: 2rem;
-}
-.select-bordered {
-  border-color: var(oklch(var(--bc)/0.2));
-}
-
-.select {
   --tw-bg-opacity: 1;
   padding-right: 2.5rem;
   border-radius: var(--rounded-btn);
@@ -92,6 +73,22 @@ select {
   background-position:
     calc(0% + 12px) calc(1px + 50%),
     calc(0% + 16px) calc(1px + 50%);
+}
+
+
+.max-w-xs {
+  max-width: 20rem;
+}
+.select-sm {
+  height: 2rem;
+  min-height: 2rem;
+  padding-left: 0.75rem;
+  padding-right: 2rem;
+  font-size: 0.875rem;
+  line-height: 2rem;
+}
+.select-bordered {
+  border-color: var(oklch(var(--bc)/0.2));
 }
 
 /*END: daisyui select */
@@ -120,10 +117,6 @@ select {
   }
   .kiwix-sort-btn-active {
     @apply z-50 pr-[2em] hover:cursor-default;
-  }
-
-  .kiwix-home-filter-label {
-
   }
 
   .kiwix-download-filter-label {
