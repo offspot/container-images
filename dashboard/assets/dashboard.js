@@ -224,11 +224,24 @@ function run() {
     filter.render(true);
   }
 
+  function onCloseDownloadDrawerButtonClick(el, ev) {
+    // go to home (from downloads)
+    window.location.assign("/");
+  }
+
+  function onOpenDownloadDrawerButtonClick(el, ev) {
+    // go (back) to downloads (from home)
+    window.location.assign("/download");
+  }
+
   live('#sort-by-name', 'click', onSortByButtonClick);
   live('#sort-by-natural', 'click', onSortByButtonClick);
   live('#sort-by-size', 'click', onSortByButtonClick);
   live('#order-desc', 'click', onOrderDirButtonClick);
   live('#order-asc', 'click', onOrderDirButtonClick);
+
+  live('#close-download-drawer', 'click', onCloseDownloadDrawerButtonClick);
+  live('#open-download-drawer', 'click', onOpenDownloadDrawerButtonClick);
 
   filter.render(true);
 }

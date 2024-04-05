@@ -19,7 +19,16 @@
     {% if page == 'download' %}bg-kworange{% else %}bg-kwbggrey{% endif %}
     md:bg-kwbggrey
   ">
-    <header class="bg-white">
+    <header class="
+      bg-white
+
+      {% if page == 'download' %}
+        kiwix-mini-download-open-outerglow
+      {% endif %}
+      {% if page == 'home' %}
+        kiwix-mini-download-open-outerglow
+      {% endif %}
+      ">
       <nav class="
         content-max-w
         content-w
@@ -33,7 +42,13 @@
                   class="object-scale-down w-[11rem] h-[6rem] object-left" />
               </a>
             </div>
-            <div class="flex flex-none font-normal">
+            <div class="
+              cursor-pointer
+              text-kwtextgrey
+              md:hidden">
+              <i title="Open filters" class="fa-solid fa-bars fa-2xl"></i>
+            </div>
+            <div class="hidden md:flex flex-none font-normal">
                 <a
                   href="/"
                   class="{% if page != 'home' %}hover:text-kworange-500 {% endif %} active:text-kworange me-8 auppercase qtracking-widest text-[1.1em] {% if page == 'home' %} text-kworange{% endif %}">Browse</a>
@@ -44,6 +59,69 @@
         </div>
       </nav>
     </header>
+
+    {% if page == 'home' %}
+    <div class="
+      md:hidden
+
+      asticky
+      abottom-0
+      w-[100%]
+    ">
+
+      <div class="
+        bg-kworange
+        kiwix-mini-download-open-downshadow
+
+        h-[0.9rem]
+        axxs-[1.5rem]
+        axs:h-[1.5rem]
+        asm:h-[2rem]
+
+        w-[100%]
+      "></div>
+
+      <div class="w-[100%] flex">
+        <div class="flex-col w-[33%]"></div>
+
+        <div
+        id="open-download-drawer"
+        class="
+          flex-col
+
+          w-[34%]
+          h-[1.2rem]
+          xxs:h-[1.6rem]
+          xs:h-[2rem]
+          sm:h-[2.4rem]
+
+          text-[0.7rem]
+          xxs:text-[0.8rem]
+          xs:text-[1rem]
+          sm:text-[1.2rem]
+
+          text-white
+          hover:text-kwbgwhitehover
+
+          font-normal
+          xs:font-medium
+          sm:font-medium
+
+          text-center
+
+          cursor-pointer
+
+          bg-contain
+          bg-origin-content
+          bg-no-repeat
+          bg-center-top
+        " style="background-image: url(assets/open-down-orange.png); "><a href="/download">DOWNLOADS</a></div>
+
+        <div class="flex-col w-[33%]"></div>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="
       {% if page == 'download' %}
         bg-kworange kiwix-download-innerglow
@@ -136,6 +214,78 @@
         </nav>
       </div>
     </footer>
+
+    {% if page == 'download' %}
+    <div class="
+      md:hidden
+
+      bg-kwfiltersgrey
+
+      sticky
+      bottom-0
+      w-[100%]
+    ">
+
+      <div class="
+        bg-kworange
+
+        h-[1.5rem]
+        xxs-[1.5rem]
+        xs:h-[1.5rem]
+        sm:h-[2rem]
+
+        w-[100%]
+
+        kiwix-mini-download-close-uppershadow
+      "></div>
+
+      <div class="w-[100%] flex">
+        <div class="flex-col w-[33%]"></div>
+
+        <div
+        id="close-download-drawer"
+        class="
+          flex-col
+
+          w-[34%]
+          h-[2rem]
+
+          text-white
+          hover:text-kwbgwhitehover
+
+          font-normal
+          xs:font-medium
+          sm:font-medium
+
+          text-[0.9rem]
+          xxs:text-[0.9rem]
+          xs:text-[1.1rem]
+          sm:text-[1.2rem]
+
+          text-center
+
+          cursor-pointer
+
+          bg-contain
+          bg-origin-content
+          bg-no-repeat
+          bg-center-top
+        " style="background-image: url(assets/close-down-orange.png);"><a href="/">CLOSE</a></div>
+
+        <div class="flex-col w-[33%]"></div>
+      </div>
+
+      <div class="
+        w-[100%]
+
+        h-[0]
+        xxs:h-[0]
+        xs:h-[0.5rem]
+        sm:h-[0.5rem]
+      "></div>
+    </div>
+    {% endif %}
+
     <script type="text/javascript" src="/assets/dashboard.js">
     </script>
   </body>

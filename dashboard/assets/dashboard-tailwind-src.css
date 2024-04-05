@@ -125,6 +125,23 @@ select {
     box-shadow: inset 0 0 1em #c60;
   }
 
+  .kiwix-mini-download-open-outerglow {
+    box-shadow: 0 0 1em 0.5em #c60;
+  }
+
+  .kiwix-mini-download-close-uppershadow {
+    box-shadow: #f39325 0 -0.4rem 0.9rem 0;
+  }
+
+  .kiwix-mini-download-open-downshadow {
+    box-shadow: inset 0 0.3em 0.3em #c60;
+  }
+
+  .bg-center-top {
+    background-position-x: center;
+    background-position-y: top;
+  }
+
   .content-max-w {
     @apply sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-md xl:max-w-screen-lg 2xl:max-w-screen-xl;
   }
