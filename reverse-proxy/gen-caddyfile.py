@@ -92,8 +92,8 @@ files_map: dict[str, str] = {
     if ":" in entry
 }
 
-debug: bool = bool(os.getenv("DEBUG", False))
-is_online_demo: bool = bool(os.getenv("IS_ONLINE_DEMO", False))
+debug: bool = bool(os.getenv("DEBUG", ""))
+is_online_demo: bool = bool(os.getenv("IS_ONLINE_DEMO", ""))
 template: Template = Template(
     """
 {
@@ -226,9 +226,9 @@ if __name__ == "__main__":
     gen_caddyfile()
 
     if debug:
-        with open("/etc/caddy/Caddyfile", "r") as fh:
+        with open("/etc/caddy/Caddyfile") as fh:
             print(fh.read(), flush=True)
 
     if len(sys.argv) < 2:
         sys.exit(0)
-    os.execvp(sys.argv[1], sys.argv[1:])  # nosec
+    os.execvp(sys.argv[1], sys.argv[1:])  # nosec  # noqa: S606
