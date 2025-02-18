@@ -16,7 +16,7 @@ Configuration is done mostly via environment variables
 
 | Variable            | Default               | Usage                                                             |
 | ------------------- | --------------------- | ----------------------------------------------------------------- |
-| `HOTSPOT_NAME`      | `default`             | Name of the hotspot, displayed on portal and as title             |
+| `HOTSPOT_NAME`      | `Kiwix Hotspot`       | Name of the hotspot/SSSID, displayed on portal and as title             |
 | `HOTSPOT_FQDN`      | `default.hotspot`     | URL (hostname actualy) to point users to.                         |
 | `HOSTPOT_IP`        | `192.168.2.1`         | IP to redirect unregistered HTTP traffic to                       |
 | `CAPTURED_NETWORKS` | `192.168.2.128/25     | `|` separated networks to limit *capture* to. Otherwise any       |
