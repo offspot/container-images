@@ -160,6 +160,15 @@ template: Template = Template(
     {% if service.disable_home %}
     redir / {scheme}://{$FQDN} permanent
     {% endif %}
+
+    # awaiting https://github.com/kiwix/kiwix-tools/issues/711
+    {% if service.target == 'kiwix' %}
+    reverse_proxy /catch/external* home:80 {
+        rewrite /blocked/?{query}
+        header_up Host {upstream_hostport}
+    }
+    {% endif %}
+
     reverse_proxy {{service.target}}:{{service.port}}
     handle_errors {
         respond "HTTP {http.error.status_code} Error ({http.error.message})"
