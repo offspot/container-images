@@ -16,14 +16,13 @@ from threading import Thread
 
 from portal_filter import clear_passlist
 
-
 INTERVAL: int = int(os.getenv("CLEAR_PASSLIST_INTERVAL", 60)) * 60  # seconds
 logging.basicConfig(level=logging.DEBUG if os.getenv("DEBUG") else logging.INFO)
 logger = logging.getLogger("watcher")
 
 
 class PeriodicPasslistClearance(Thread):
-    def run(self, *args, **kwargs):
+    def run(self, *args, **kwargs):  # noqa: ARG002
         elapsed: int = 0
         while True:
             time.sleep(1)

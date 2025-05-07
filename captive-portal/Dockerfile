@@ -24,7 +24,7 @@ COPY entrypoint.sh /usr/local/bin/
 COPY clear-passlist reset-passlist remove-client watcher /usr/local/bin/
 
 RUN \
-    url="https://github.com/offspot/captive-portal/archive/refs/tags/1.5.1.tar.gz" \
+    url="https://github.com/offspot/captive-portal/archive/refs/tags/1.5.2.tar.gz" \
     && curl -L $url | tar -C /src/ --strip-components 1 -xz \
     # set python virtualenv in app's uwsgi config
     && echo "home = /usr/local/captive-env" >> /src/uwsgi.ini \
