@@ -24,7 +24,7 @@ COPY entrypoint.sh /usr/local/bin/
 COPY clear-passlist reset-passlist remove-client watcher /usr/local/bin/
 
 RUN \
-    url="https://github.com/offspot/captive-portal/archive/refs/tags/1.5.3.tar.gz" \
+    url="https://github.com/offspot/captive-portal/archive/refs/tags/1.6.0.tar.gz" \
     && curl -L $url | tar -C /src/ --strip-components 1 -xz \
     # set python virtualenv in app's uwsgi config
     && echo "home = /usr/local/captive-env" >> /src/uwsgi.ini \
@@ -36,7 +36,7 @@ RUN \
 
 ENV HOTSPOT_NAME "My Hotspot"
 ENV HOTSPOT_FQDN "generic.offspot"
-ENV HOTSPOT_IP "192.168.2.1"
+ENV HOTSPOT_IP "192.168.144.1"
 ENV FOOTER_NOTE ""
 # minutes after which to unregister gone clients
 ENV TIMEOUT "60"
@@ -45,7 +45,7 @@ ENV CLEAR_PASSLIST_INTERVAL "60"
 ENV FILTER_MODULE "portal_filter"
 ENV DB_PATH /data/portal-users.db
 # restrict netfilter rules to specified networks
-ENV CAPTURED_NETWORKS "192.168.2.128/25"
+ENV CAPTURED_NETWORKS "192.168.144.128/25"
 ENV PYTHONPATH "/src"
 
 COPY lighttpd.conf /etc/lighttpd/
