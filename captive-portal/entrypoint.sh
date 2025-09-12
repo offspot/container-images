@@ -43,7 +43,7 @@ fi
 echo "Starting LigHTTPd"
 lighttpd -f /etc/lighttpd/lighttpd.conf
 
-echo "Starting innactive users clearer watcher"
+echo "Starting inactive users clearer watcher"
 /usr/local/bin/watcher &
 
 exec "$@"
