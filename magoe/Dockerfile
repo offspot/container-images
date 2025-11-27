@@ -1,5 +1,5 @@
-FROM alpine:3.19
-LABEL org.opencontainers.image.source https://github.com/offspot/container-images
+FROM alpine:3.22
+LABEL org.opencontainers.image.source=https://github.com/offspot/container-images
 
 COPY entrypoint /usr/local/bin/
 
@@ -14,7 +14,7 @@ COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
 
 VOLUME /var/www/magoe
 EXPOSE 80
-ENV MAGOE_URL http://localhost
+ENV MAGOE_URL=http://localhost
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/entrypoint"]
 CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
