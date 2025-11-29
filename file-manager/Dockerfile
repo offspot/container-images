@@ -1,7 +1,7 @@
-FROM alpine:3.19
-LABEL org.opencontainers.image.source https://github.com/offspot/container-images
+FROM alpine:3.22
+LABEL org.opencontainers.image.source=https://github.com/offspot/container-images
 
-ENV WEBDIR "/var/www/html"
+ENV WEBDIR="/var/www/html"
 WORKDIR $WEBDIR
 
 COPY tinyfilemanager.php.patch $WEBDIR
@@ -68,19 +68,19 @@ COPY entrypoint /usr/local/bin/
 # - listing: lists the content of /data read-only
 # - manager: auth-required, /data is in read-write
 # - mixed: listing mode on / endpoint but manager on /admin/ endpoint
-ENV ACCESS_MODE "listing"
+ENV ACCESS_MODE="listing"
 
 # authentication for manager and mixed modes (plaintext)
-ENV ADMIN_USERNAME "admin"
-ENV ADMIN_PASSWORD "admin@123"
+ENV ADMIN_USERNAME="admin"
+ENV ADMIN_PASSWORD="admin@123"
 
 # timezone to use for date/time (assuming host has date)
 # /!\ must be escaped! (slash)
-ENV UI_TIMEZONE "Etc/UTC"
+ENV UI_TIMEZONE="Etc/UTC"
 
-ENV UI_LANG "en"
+ENV UI_LANG="en"
 
-ENV APP_URL ""
+ENV APP_URL=""
 
 EXPOSE 80
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "entrypoint"]
