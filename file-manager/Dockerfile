@@ -8,6 +8,7 @@ COPY tinyfilemanager.php.patch $WEBDIR
 
 RUN apk add --no-cache \
         dumb-init \
+        sed \
         lighttpd \
         php83-fpm php83-fileinfo php83-iconv php83-zip php83-mbstring \
         php83-session php83-phar php83-ctype php83-posix \
@@ -41,6 +42,13 @@ RUN apk add --no-cache \
     && curl -L -O https://code.jquery.com/jquery-3.6.1.min.js \
     && curl -L -O https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js \
     && curl -L -O https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js \
+    # replace passing-through animation with slide-in (which stays) for success
+    && sed -i 's/.dz-success-mark {/.dz-success-mark {opacity:1;/g' $WEBDIR/assets/css/dropzone.min.css \
+    && sed -i 's/animation:passing-through/animation:slide-in/g' $WEBDIR/assets/css/dropzone.min.css \
+    # replace success icon with solid green color fill="#FFFFFF" (JS)
+    && sed -i '0,/fill="#FFFFFF"/s//fill="green"/' $WEBDIR/assets/js/dropzone.min.js \
+    # replace error icon with solid red color fill="#FFFFFF"
+    && sed -i '0,/fill="#FFFFFF"/s//fill="red"/' $WEBDIR/assets/js/dropzone.min.js \
     && echo "JS OK" \
     && cd $WEBDIR \
     && curl -L -O "$TFMPREFIX/translation.json" \
