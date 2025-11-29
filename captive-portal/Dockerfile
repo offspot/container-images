@@ -1,6 +1,5 @@
-# alpine 3.19 has python 3.11
-FROM alpine:3.19
-LABEL org.opencontainers.image.source https://github.com/offspot/container-images
+FROM alpine:3.22
+LABEL org.opencontainers.image.source=https://github.com/offspot/container-images
 
 WORKDIR /src
 
@@ -31,22 +30,22 @@ RUN \
     && /usr/local/captive-env/bin/pip install --no-cache-dir -r /src/portal/requirements.txt \
     && /usr/local/captive-env/bin/pip install --no-cache-dir -r /src/portal_filter/requirements.txt \
     # inotify is used in our watcher
-    && /usr/local/captive-env/bin/pip install --no-cache-dir inotify==0.2.10 \
-    && apk del curl ca-certificates apk-tools
+    && /usr/local/captive-env/bin/pip install --no-cache-dir inotify==0.2.12 \
+    && apk del curl apk-tools
 
-ENV HOTSPOT_NAME "My Hotspot"
-ENV HOTSPOT_FQDN "generic.offspot"
-ENV HOTSPOT_IP "192.168.144.1"
-ENV FOOTER_NOTE ""
+ENV HOTSPOT_NAME="My Hotspot"
+ENV HOTSPOT_FQDN="generic.offspot"
+ENV HOTSPOT_IP="192.168.144.1"
+ENV FOOTER_NOTE=""
 # minutes after which to unregister gone clients
-ENV TIMEOUT "60"
+ENV TIMEOUT="60"
 # minutes after which to clear filter passlist when online
-ENV CLEAR_PASSLIST_INTERVAL "60"
-ENV FILTER_MODULE "portal_filter"
-ENV DB_PATH /data/portal-users.db
+ENV CLEAR_PASSLIST_INTERVAL="60"
+ENV FILTER_MODULE="portal_filter"
+ENV DB_PATH=/data/portal-users.db
 # restrict netfilter rules to specified networks
-ENV CAPTURED_NETWORKS "192.168.144.128/25"
-ENV PYTHONPATH "/src"
+ENV CAPTURED_NETWORKS="192.168.144.128/25"
+ENV PYTHONPATH="/src"
 
 COPY lighttpd.conf /etc/lighttpd/
 COPY uwsgi.ini /src/uwsgi.ini
