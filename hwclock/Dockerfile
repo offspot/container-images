@@ -1,4 +1,4 @@
-FROM alpine:3.22
+FROM docker.io/library/alpine:3.22
 LABEL org.opencontainers.image.source=https://github.com/offspot/container-images
 
 RUN apk add --no-cache dumb-init uwsgi uwsgi-http uwsgi-python3
