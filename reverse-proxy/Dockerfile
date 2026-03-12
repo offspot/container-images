@@ -1,4 +1,4 @@
-FROM docker.io/library/caddy:2.10-alpine
+FROM docker.io/library/caddy:2.11-alpine
 LABEL org.opencontainers.image.source=https://github.com/offspot/container-images
 
 RUN \
