@@ -4,7 +4,7 @@ error_reporting(E_ERROR | E_PARSE);
 $CONFIG = '{"lang":"UI_LANG","error_reporting":false,"show_hidden":false,"hide_Cols":true,"theme":"light"}';
 
 define('VERSION', '2.5.3-offspot');
-define('APP_TITLE', 'File Manager');
+define('APP_TITLE', 'Kiwix Hotspot File Manager');
 $app_url = 'APP_URL';
 if ($app_url) {
     define('FM_SELF_URL', $app_url);
