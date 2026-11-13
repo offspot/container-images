@@ -1,4 +1,7 @@
-FROM docker.io/library/caddy:2-alpine
+# using pinned version as to not (hopefully) jump an alpine version
+# which could raise python major which is explicit in entrypoint filename
+# 2.11-alpine has py3.14
+FROM docker.io/library/caddy:2.11-alpine
 LABEL org.opencontainers.image.source=https://github.com/offspot/container-images
 
 RUN \
@@ -31,6 +34,6 @@ EXPOSE 443
 # used here as documentation, will be set on compose in offspot-config
 HEALTHCHECK --interval=30s --timeout=2s --start-period=5s --start-interval=2s --retries=3 CMD ["curl", "-f", "http://localhost:2020/config/"]
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/proxy-env/bin/python3", "/usr/local/lib/gen-caddyfile.cpython-312.pyc"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/proxy-env/bin/python3", "/usr/local/lib/gen-caddyfile.cpython-314.pyc"]
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
 
