@@ -1,9 +1,9 @@
-FROM docker.io/library/caddy:2.11-alpine
+FROM docker.io/library/caddy:2-alpine
 LABEL org.opencontainers.image.source=https://github.com/offspot/container-images
 
 RUN \
     # openssl required to generate cert when CAPTIVE_PORTAL is on
-    apk add --no-cache dumb-init python3 \
+    apk add --no-cache dumb-init curl python3 \
     && python3 -m venv /usr/local/proxy-env \
     && /usr/local/proxy-env/bin/pip3 install --no-cache-dir -U pip \
     && /usr/local/proxy-env/bin/pip3 install --no-cache-dir Jinja2==3.1.6
@@ -21,6 +21,15 @@ ENV DEMO_TLS_EMAIL="dev@kiwix.org"
 
 # store python bytecode in image
 RUN /usr/local/proxy-env/bin/python3 -m compileall /src/gen-caddyfile.py && mv /src/__pycache__/*.pyc /usr/local/lib/
+
+EXPOSE 2020
+EXPOSE 80
+EXPOSE 443
+
+# requires --format docker for building via podman
+# --start-interval requires docker-engine 25+
+# used here as documentation, will be set on compose in offspot-config
+HEALTHCHECK --interval=30s --timeout=2s --start-period=5s --start-interval=2s --retries=3 CMD ["curl", "-f", "http://localhost:2020/config/"]
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/proxy-env/bin/python3", "/usr/local/lib/gen-caddyfile.cpython-312.pyc"]
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
